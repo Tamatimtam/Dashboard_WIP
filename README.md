@@ -30,3 +30,8 @@ npx serve .
 - The grain overlay uses an inline SVG `feTurbulence` mapped as a background image and blended with `mix-blend-mode: overlay` for a soft organic texture.
 - GSAP powers subtle, natural motion; animations respect the user's `prefers-reduced-motion` setting.
 - The color system and shadows aim to keep a warm, solarpunk aesthetic with tactile depth.
+
+## Project docs (analysis & planning)
+- `docs/brainstorming_ideation.md` – narasi ideation (ID), EDA ringkas, insight, rekomendasi, dan aturan kompetisi.
+- `docs/dashboard_panels.md` – spesifikasi panel, visual, interaksi, dan pedoman aksesibilitas.
+- `docs/pitch.md` – ringkasan singkat (6–8 bullets) untuk presentasi.

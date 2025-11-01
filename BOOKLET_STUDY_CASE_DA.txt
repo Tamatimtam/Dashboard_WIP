@@ -1,0 +1,370 @@
+Dataset : Financial Generation Z in Indonesia - Augmented Data
+Sumber : bit.ly/DatasetDAGelarRasa2025
+
+
+
+
+Dataset yang digunakan dalam lomba ini menggambarkan
+perilaku, literasi, dan kondisi finansial Generasi Z di Indonesia.
+Terdiri dari tiga sumber data yang saling melengkapi, dataset ini
+mencakup informasi individu hingga gambaran ekonomi
+wilayah. Secara keseluruhan, dataset ini menggambarkan
+hubungan antara perilaku finansial individu, literasi keuangan
+digital, dan kondisi ekonomi wilayah. Peserta diharapkan dapat
+memanfaatkan data ini untuk menghasilkan analisis dan model
+yang menggambarkan dinamika keuangan generasi muda di
+Indonesia.
+
+
+
+
+Analisis terhadap dataset ini diarahkan untuk:
+1. Menggali pola dan tren dari data yang tersedia untuk
+   memahami perilaku, kondisi, serta dinamika keuangan
+   masyarakat, khususnya generasi muda di Indonesia.
+    Peserta diharapkan mampu menampilkan hasil eksplorasi
+  data dalam bentuk visualisasi atau analisis yang informatif,
+  guna memberikan gambaran umum mengenai karakteristik
+  dan kebiasaan keuangan dari berbagai sudut pandang.
+
+2. Mengembangkan pemahaman terhadap hubungan antar
+   variabel dan faktor yang memengaruhi kondisi finansial,
+   sosial, maupun ekonomi yang terdapat dalam dataset.
+       Peserta melalui analisis data diharapkan dapat
+  mengidentifikasi potensi keterkaitan antar-aspek yang relevan
+  serta menemukan temuan-temuan menarik yang dapat
+  memperkaya wawasan mengenai perilaku dan kondisi
+  ekonomi masyarakat.
+
+3. Menyajikan hasil analisis dalam bentuk model atau
+   dashboard yang interaktif, komunikatif, dan bernilai insight
+   bagi pengambilan keputusan.
+
+       Peserta didorong untuk menyusun tampilan yang tidak
+  hanya menampilkan data, tetapi juga mampu menceritakan
+  story behind the data, memberikan interpretasi, serta
+  menyoroti temuan-temuan yang bermakna secara visual dan
+  analitis.
+   GenZ_Financial_Literacy_Survey.csv : Data utama hasil
+   survei persepsi, pemahaman, dan kebiasaan finansial Gen Z.
+   GenZ_Financial_Profile.csv : Data responden Gen Z terkait
+   perilaku finansial (user_id, gender, province, education, dsb).
+   Regional_Economic_Indicators.csv : Data tambahan
+   indikator ekonomi tiap provinsi (PDRB, pinjaman, urbanisasi,
+   dsb).
+
+
+
+GenZ_Financial_Literacy_Survey.csv
+    Gender : Jenis kelamin responden
+    Province of Origin : Provinsi asal responden
+    Residence Status : Status tempat tinggal (orang tua/kos/dll)
+    Last Education : Pendidikan terakhir
+    Job : Pekerjaan saat ini
+    Marital Status : Status pernikahan
+    Year of Birth : Tahun kelahiran
+    Est. Monthly Income : Estimasi pendapatan bulanan (IDR)
+    Est. Monthly Expenditure : Estimasi pengeluaran bulanan
+    (IDR)
+(Kolom selanjutnya berisi pernyataan sikap terkait literasi
+finansial, penggunaan fintech, pengambilan keputusan
+keuangan, dan perasaan finansial pribadi yang diukur dengan
+skala likert)
+No.                             Questionnaire Items
+
+
+      I am able to identify risks and discrepancies and view numbers in a
+1.
+      complex way.
+
+
+2.    I am able to recognize a good financial investment.
+
+
+3.    I am able to understand what is behind the numbers .
+
+
+      I am able to and divide it accordingly across an allotted period to the
+4.
+      right concerned areas.
+
+
+      I am able to project the amount of cash that will be available to me in
+5.
+      the future.
+
+
+6.    I am able to plan ahead to avoid impulse spending.
+
+
+7.    I am able to understand numbers and financial metrics.
+
+
+8.    I am able to understand what drives cash flow and profits.
+
+
+      I am able to understand the company’s financial statements and
+9.
+      some core performance measures.
+
+
+      Awareness about the potential of financial risk in using digital
+10.   financial provider or fintech, such as the legality of the fintech
+      provider, interest rate and transaction fee.
+No.                            Questionnaire Items
+
+
+      Having experience in using the product and service of fintech for
+11.
+      digital payment.
+
+
+      Experience in using the product and service of fintech for financing
+12.
+      (loan) and investment.
+
+
+      Experience in using the product and service of fintech for asset
+13.
+      management.
+
+
+      Having a good understanding of digital payment products such as E
+14.
+      Debit, E-Credit, E-Money, Mobile/Internet banking, E -wallet.
+
+
+15.   Having a good understanding of product digital asset management.
+
+
+16.   Having a good understanding of digital alternatives.
+
+
+17.   Having a good understanding of digital insurance.
+
+
+      Having a good understanding of customer rights and protection as
+18.   well as the procedure to complain about the service from digital
+      financial providers.
+
+
+19.   I take part in domestic expense planning.
+
+
+20.   I usually have a critical view of the way my friends deal with money.
+No.                            Questionnaire Items
+
+
+      I like to participate in family decision making when we buy something
+21.
+      expensive for home.
+
+
+22.   I advise others on money matters.
+
+
+23.   I always try to save some money to do things I really like.
+
+
+24.   I always like to negotiate prices when I buy.
+
+
+25.   I suggest at home that we keep money aside for emergencies.
+
+
+26.   I keep an eye on promotions and discounts.
+
+
+27.   I like to think thoroughly before deciding to buy something.
+
+
+28.   I like to research prices whenever I buy something.
+
+
+29.   I pay attention to news about the economy as it may affect my family.
+
+
+30.   I often do things without giving them much thought.
+
+
+31.   I am impulsive.
+No.                            Questionnaire Items
+
+
+32.   I say things before I have thought them through.
+
+
+      I am able to quickly change my financial decisions as per the
+33.
+      changes in circumstance.
+
+
+      Appraise of personal risk helps me in better financial decision
+34.
+      making.
+
+
+35.   I make sound financial decision by comparing results over the time.
+
+
+      I make sound financial decisions by comparing results over expenses
+36.
+      involved.
+
+
+      I am able to search for economic options during financial decision
+37.
+      making.
+
+
+      I am able to foresee the long term and short-term consequences of
+38.
+      the financial decisions I undertake.
+
+
+      Previously used decision strategies help me in better financial
+39.
+      decision making.
+
+
+40.   I am becoming financially secure.
+
+
+41.   I am securing my financial future.
+ No.                             Questionnaire Items
+
+
+ 42.   I will achieve the financial goals that I have set for myself.
+
+
+       I have saved (or will be able to save) enough money to last me to the
+ 43.
+       end of my life.
+
+
+       Because of my money situation, I feel I will never have the things I
+ 44.
+       want in life.
+
+
+ 45.   I am behind with my finances.
+
+
+ 46.   My finances control my life.
+
+
+       Whenever I feel in control of my finances, something happens that
+ 47.
+       sets me back.
+
+
+ 48.   I am unable to enjoy life because I obsess too much about money.
+
+
+
+Hasil jawaban dari setiap responden pada survei                                ini
+menggunakan skala Likert dengan rentang nilai 1–4.
+1 : Strongly Disagree
+2 : Disagree
+3 : Agree
+4 : Strongly Agree
+GenZ_Financial_Profile.csv
+  user_id ID : unik setiap responden.
+  birth_year : Tahun kelahiran responden.
+  gender : Jenis kelamin.
+  province : Provinsi asal responden.
+  education_level : Tingkat pendidikan terakhir.
+  employment_status : Status pekerjaan.
+  avg_monthly_income : Rata-rata pendapatan bulanan
+  (IDR).
+  avg_monthly_expense : Rata-rata pengeluaran bulanan
+  (IDR).
+  main_fintech_app : Platform Kepemilikan e-wallet.
+  ewallet_spending : Rata-rata pengeluaran e-wallet (IDR).
+  investment_type : Jenis investasi yang dimiliki.
+  loan_usage_purpose : Tujuan penggunaan pinjaman.
+  outstanding_loan : Jumlah pinjaman yang masih berjalan.
+  financial_anxiety_score : Skor kecemasan finansial
+  responden. 1–5 (5 = sangat cemas, 1 = tenang).
+  digital_time_spent_per_day : Rata-rata waktu online per
+  hari (jam).
+Regional_Economic_Indicators.csv
+   Provinsi : Nama provinsi
+   Jumlah Rekening Penerima Pinjaman Aktif (entitas) :
+   Jumlah akun penerima pinjaman aktif
+   Jumlah Dana yang Diberikan (miliar Rp) : Total pinjaman
+   yang disalurkan
+   Jumlah Rekening Pemberi Pinjaman (akun) : Jumlah akun
+   pemberi pinjaman
+   TWP 90% : Tingkat wanprestasi 90 hari (indikator risiko kredit)
+   Jumlah Penerima Pinjaman (akun) : Total penerima
+   pinjaman aktif
+   Outstanding Pinjaman (miliar Rp) : Nilai total pinjaman
+   berjalan
+   Jumlah Penduduk Ribu : Populasi provinsi (ribu orang)
+   PDRB (Ribu Rp) : Produk Domestik Regional Bruto per provinsi
+   Urbanisasi : Persentase populasi yang tinggal di wilayah
+   urban
+1.Waktu pengerjaan proyek dimulai dari tanggal 1 November
+  hingga 15 November 2025.
+2.Peserta dilarang menggunakan dataset selain yang
+  diberikan oleh panitia.
+3.Tidak ada batasan dalam penggunaan library dan tools.
+4.Panitia tidak bertanggung jawab atas link pengerjaan yang
+  tidak dapat diakses akibat pengaturan akses yang terkunci.
+5.Hasil akhir proyek dikumpulkan dengan format file .pdf yang
+  berisi:
+      Halaman awal (cover): Sertakan judul proyek, nama tim,
+      dan identitas tim. Detail selengkapnya silahkan lihat pada
+      lampiran.
+      Hasil dashboard dan penjelasan:
+          Overview dashboard: Berisikan fitur utama dan
+          penjelasan setiap bagiannya.
+          Rekomendasi & insight: Berikan rekomendasi dan
+          insight yang relevan berdasarkan hasil analisis.
+      Lampiran: Cantumkan link hasil pengerjaan yang dapat
+      diakses oleh panitia di bagian lampiran.
+6.File diketik pada kertas ukuran A4, font Times New Roman
+  ukuran 12 pt, spasi 1.5, dan rata kanan–kiri (justify).
+7.Sanksi keterlambatan:
+      Setiap keterlambatan pengumpulan akan dikenakan
+      sanksi pengurangan 2 poin per jam (berlaku kelipatan).
+      Peserta yang tidak mengumpulkan hingga H+1 akan
+      didiskualifikasi.
+Batas pengumpulan file adalah tanggal 15 November 2025
+pukul 23.59 WIB
+Pengumpulan dilakukan oleh ketua tim atau perwakilan.
+File dikumpulkan melalui link berikut:
+bit.ly/PengumpulanProyekDAGelarRasa2025 dengan format
+nama file: DA2025_NamaTim_NamaKetua.pdf.
+                         Detail Aspek                         Rentang Poin
+
+
+Kualitas visualisasi
+  Visualisasi data mudah dipahami dan interpretasi jelas.
+  Desain dashboard menarik secara visual.                         25
+  Penggunaan warna, font, dan layout konsisten di seluruh
+  dashboard.
+
+
+Insight dan analisis
+    Kesimpulan yang ditarik sesuai dengan data dan analisis
+    yang dilakukan.                                               30
+    Terdapat penggunaan metode atau pendekatan analisis.
+    Kesesuaian visualisasi data.
+
+
+Fungsionalitas dan interaktivitas
+   Dashboard mudah digunakan dan navigasi intuitif.               25
+   Menggunakan fitur interaktif yang mudah digunakan.
+
+
+Struktur & kerapian laporan
+   Laporan tersusun sesuai format.
+                                                                  20
+   Penulisan rapi, tata bahasa baik, tanda baca tepat, dan
+   format konsisten.
+
+
+                            Total                                 100
+
