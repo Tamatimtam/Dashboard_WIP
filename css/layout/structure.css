@@ -1,0 +1,17 @@
+/* High-level layout and containers */
+.dashboard {
+    max-width: 1200px;
+    padding: 32px 28px 64px;
+    margin: 0 auto;
+}
+
+.hero {
+    margin-top: 24px;
+}
+
+.cards {
+    margin-top: 28px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}

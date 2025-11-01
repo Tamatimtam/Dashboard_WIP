@@ -1,0 +1,23 @@
+/* Design tokens: colors, radii, and typography scales */
+:root {
+    --mint-50: #f2fbf0;
+    --mint-100: #e8f6e6;
+    --mint-200: #d6efd4;
+    --mint-250: #c7e9c7;
+    --mint-300: #b2e0b6;
+
+    --green-500: #5fbf74;
+    --green-600: #44b165;
+    --green-700: #2f7a46;
+
+    --accent-red: #e76b5f;
+    --accent-red-2: #ff8a7f;
+
+    --bg: #eef7ea;
+    --bg-2: #e6f2e4;
+    --surface: #f7fbf6;
+    --surface-2: #eef7ee;
+    --ink: #224c2a;
+    --ink-muted: #3c6b45;
+    --radius: 22px;
+}

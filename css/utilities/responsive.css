@@ -1,0 +1,24 @@
+/* Responsive rules only */
+@media (max-width: 1024px) {
+    .cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 720px) {
+    .actions {
+        gap: 10px;
+    }
+
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .title-strong {
+        font-size: 32px;
+    }
+
+    .title span:first-child {
+        font-size: 22px;
+    }
+}

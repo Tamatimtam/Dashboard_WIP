@@ -1,0 +1,55 @@
+/* Topbar: title and action buttons */
+.topbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.title {
+    margin: 6px 0 8px;
+}
+
+.title span {
+    display: block;
+}
+
+.title span:first-child {
+    font-weight: 700;
+    font-size: clamp(24px, 3.3vw, 36px);
+    color: var(--ink);
+}
+
+.title-strong {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-size: clamp(34px, 4.2vw, 48px);
+}
+
+.actions {
+    display: flex;
+    gap: 14px;
+}
+
+.action-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    border: 0;
+    background: linear-gradient(180deg, var(--surface), var(--surface-2));
+    color: var(--green-700);
+    box-shadow: 0 10px 24px rgba(48, 96, 64, .12), 0 2px 8px rgba(48, 96, 64, .06), inset 0 1px 0 rgba(255, 255, 255, .7);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 36px rgba(48, 96, 64, .18), 0 4px 12px rgba(48, 96, 64, .10), inset 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
