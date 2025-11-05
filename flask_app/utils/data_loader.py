@@ -115,6 +115,36 @@ class DataLoader:
         
         return chart_data
     
+    def get_profession_chart_data(self):
+        """
+        Prepare placeholder data for Profession/Employment Status chart
+        
+        Returns:
+            dict: Dictionary containing profession data
+        """
+        # Placeholder data - replace with actual column when available
+        profession_data = {
+            'categories': ['Student', 'Employed', 'Freelance', 'Entrepreneur', 'Unemployed'],
+            'values': [35, 28, 18, 12, 7],
+            'colors': ['#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#e74c3c']
+        }
+        return profession_data
+    
+    def get_education_chart_data(self):
+        """
+        Prepare placeholder data for Education Level chart
+        
+        Returns:
+            dict: Dictionary containing education data
+        """
+        # Placeholder data - replace with actual column when available
+        education_data = {
+            'categories': ['High School', 'Bachelor', 'Master', 'Diploma', 'Doctorate'],
+            'values': [22, 45, 18, 10, 5],
+            'colors': ['#1abc9c', '#3498db', '#9b59b6', '#f39c12', '#e74c3c']
+        }
+        return education_data
+    
     def get_key_metrics(self):
         """
         Calculate key metrics for dashboard summary

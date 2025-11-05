@@ -42,15 +42,21 @@ def dashboard():
         
         # Get chart data
         chart_data = data_loader.get_chart_data()
+        profession_data = data_loader.get_profession_chart_data()
+        education_data = data_loader.get_education_chart_data()
         
-        # Generate chart
+        # Generate charts
         chart_html = ChartGenerator.create_diverging_bar_chart(chart_data)
+        profession_chart = ChartGenerator.create_profession_chart(profession_data)
+        education_chart = ChartGenerator.create_education_chart(education_data)
         
         return render_template(
             'dashboard.html',
             stats=stats,
             metrics=metrics,
-            chart_html=chart_html
+            chart_html=chart_html,
+            profession_chart=profession_chart,
+            education_chart=education_chart
         )
     
     except FileNotFoundError as e:

@@ -103,108 +103,56 @@
         </div>
     </div>
 
-    <!-- Data Quality Section -->
-    <div class="row mb-4">
-        <div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Missing Values Analysis
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if stats.missing_data %}
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Column</th>
-                                    <th class="text-end">Count</th>
-                                    <th class="text-end">Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in stats.missing_data %}
-                                <tr>
-                                    <td><code>{{ item.column }}</code></td>
-                                    <td class="text-end">{{ item.count }}</td>
-                                    <td class="text-end">
-                                        <span class="badge bg-warning">{{ item.percentage }}%</span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-success mb-0">
-                        <i class="fas fa-check-circle me-2"></i>
-                        No missing values detected in the dataset!
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-6 mb-3">
-            <div class="card h-100">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>Dataset Information
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span><strong>Total Rows:</strong></span>
-                            <span class="badge bg-primary">{{ stats.total_rows }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span><strong>Total Columns:</strong></span>
-                            <span class="badge bg-primary">{{ stats.total_columns }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span><strong>Income Categories:</strong></span>
-                            <span class="badge bg-success">{{ stats.income_categories|length }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span><strong>Expense Categories:</strong></span>
-                            <span class="badge bg-danger">{{ stats.expense_categories|length }}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span><strong>Financial Standing Types:</strong></span>
-                            <span class="badge bg-info">{{ stats.financial_standing|length }}</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Visualization -->
+    <!-- Main Visualization - 3-Part Layout (60/20/20) -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>Income vs Expense Diverging Comparison
+                        <i class="fas fa-chart-bar me-2"></i>Visual Analytics Dashboard
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <strong>How to Read:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li><span class="text-danger">Red bars (left)</span> = Expense distribution</li>
-                            <li><span class="text-primary">Blue bars (right)</span> = Income distribution</li>
-                            <li><strong>Symmetry</strong> shows balance between income and expense patterns</li>
-                            <li>Hover over bars for detailed counts and percentages</li>
-                        </ul>
-                    </div>
-                    
-                    <!-- Chart Container -->
-                    <div class="chart-container">
-                        {{ chart_html|safe }}
+                <div class="card-body p-0">
+                    <!-- 60/20/20 Horizontal Layout -->
+                    <div class="visualization-grid">
+                        <!-- Main Chart - 60% -->
+                        <div class="viz-panel viz-main">
+                            <div class="viz-content">
+                                {{ chart_html|safe }}
+                            </div>
+                            <div class="viz-footer">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Hover bars for detailed insights
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <!-- Profession Chart - 20% -->
+                        <div class="viz-panel viz-side">
+                            <div class="viz-badge">
+                                <span class="badge bg-info">Preview</span>
+                            </div>
+                            <div class="viz-content">
+                                {{ profession_chart|safe }}
+                            </div>
+                            <div class="viz-footer">
+                                <small class="text-muted">Employment Distribution</small>
+                            </div>
+                        </div>
+                        
+                        <!-- Education Chart - 20% -->
+                        <div class="viz-panel viz-side">
+                            <div class="viz-badge">
+                                <span class="badge bg-info">Preview</span>
+                            </div>
+                            <div class="viz-content">
+                                {{ education_chart|safe }}
+                            </div>
+                            <div class="viz-footer">
+                                <small class="text-muted">Education Level Distribution</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -259,6 +207,141 @@
     }
     .bg-light-warning {
         background-color: #fff3cd !important;
+    }
+    
+    /* 60/20/20 Visualization Grid */
+    .visualization-grid {
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        min-height: 550px;
+        background: #f8f9fa;
+    }
+    
+    .viz-panel {
+        position: relative;
+        background: white;
+        border-right: 1px solid #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .viz-panel:last-child {
+        border-right: none;
+    }
+    
+    .viz-main {
+        flex: 0 0 60%;
+        width: 60%;
+        padding: 15px;
+    }
+    
+    .viz-side {
+        flex: 0 0 20%;
+        width: 20%;
+        padding: 15px 10px;
+    }
+    
+    .viz-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        min-height: 450px;
+    }
+    
+    .viz-content > div {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    .viz-footer {
+        padding: 10px;
+        text-align: center;
+        border-top: 1px solid #e9ecef;
+        background: rgba(248, 249, 250, 0.6);
+        flex-shrink: 0;
+    }
+    
+    .viz-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+    
+    /* Ensure Plotly charts fill their containers */
+    .viz-content .js-plotly-plot,
+    .viz-content .plotly,
+    .viz-content .plotly-graph-div {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    .viz-content .main-svg {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1400px) {
+        .viz-main {
+            flex: 0 0 55%;
+            width: 55%;
+        }
+        
+        .viz-side {
+            flex: 0 0 22.5%;
+            width: 22.5%;
+        }
+    }
+    
+    @media (max-width: 1200px) {
+        .visualization-grid {
+            flex-direction: column;
+        }
+        
+        .viz-main,
+        .viz-side {
+            flex: 1 1 auto;
+            width: 100% !important;
+            border-right: none;
+            border-bottom: 1px solid #e0e0e0;
+            min-height: 450px;
+        }
+        
+        .viz-panel:last-child {
+            border-bottom: none;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .viz-content {
+            min-height: 350px;
+        }
+        
+        .viz-main,
+        .viz-side {
+            min-height: 350px;
+        }
+    }
+    
+    /* Shadow and hover effects */
+    .card.shadow-sm {
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08) !important;
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .card.shadow-sm:hover {
+        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    /* Card body padding override */
+    .card-body.p-0 {
+        padding: 0 !important;
     }
 </style>
 {% endblock %}
