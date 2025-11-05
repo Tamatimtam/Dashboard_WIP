@@ -1,1 +1,93 @@
-.venv
+# ===================================================================
+# Python & Virtual Environments
+#
+# Covers build artifacts, caches, and virtual environments.
+# Using a leading slash (e.g., /venv/) ensures it only matches
+# folders at the root of the project, which is safer.
+# ===================================================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Distribution / packaging
+/build/
+/dist/
+*.egg-info/
+*.egg
+/pip-wheel-metadata/
+*.spec
+
+# Virtual environments
+/venv/
+/.venv/
+/env/
+/.env/
+/ENV/
+/.conda/
+
+# Testing, coverage, and type checkers
+/.pytest_cache/
+/.mypy_cache/
+/.pyright/
+/.ruff_cache/
+/.tox/
+.coverage
+.coverage.*
+/htmlcov/
+
+# ===================================================================
+# Application Specific (Flask, Jupyter)
+# ===================================================================
+
+# Flask instance folder (can contain sensitive config)
+/instance/
+/flask_app/instance/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# ===================================================================
+# General Exclusions
+# ===================================================================
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE and editor configuration
+# Note: Some teams prefer to commit .vscode/settings.json to share
+# project settings. If so, you can adjust these rules.
+.vscode/
+.idea/
+*.code-workspace
+
+# Log and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+
+# ===================================================================
+# Frontend / Node.js (if applicable)
+# ===================================================================
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.map
+
+# ===================================================================
+# Project-Specific Data
+#
+# It's good practice to NOT commit large data files to Git.
+# Uncomment lines below to ignore specific raw data folders or files.
+# ===================================================================
+# /DATASET/raw_data/
+# /DATASET/*.parquet
+# /DATASET/*.zip
