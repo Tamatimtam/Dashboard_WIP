@@ -26,6 +26,7 @@ env/
 .env/
 ENV/
 .conda/
+
 # Testing, coverage, and type checkers
 /.pytest_cache/
 /.mypy_cache/
