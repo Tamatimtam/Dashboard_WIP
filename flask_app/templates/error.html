@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Error - GenZ Financial Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ error_type }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5>Error Message:</h5>
+                        <p class="mb-0">{{ error_message }}</p>
+                    </div>
+                    
+                    <h6 class="mt-4">Possible Solutions:</h6>
+                    <ul>
+                        <li>Check if the CSV file exists in the <code>data/</code> folder</li>
+                        <li>Verify the file name is <code>dataset_gelarrasa_genzfinancialprofile.csv</code></li>
+                        <li>Ensure all required columns are present in the dataset</li>
+                        <li>Try refreshing the page</li>
+                    </ul>
+                    
+                    <div class="mt-4">
+                        <a href="/dashboard" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i>Return to Dashboard
+                        </a>
+                        <a href="/about" class="btn btn-secondary">
+                            <i class="fas fa-info-circle me-2"></i>Learn More
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

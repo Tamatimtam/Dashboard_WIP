@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}About - GenZ Financial Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4">
+                <i class="fas fa-info-circle text-primary"></i>
+                About This Project
+            </h1>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Project Overview</h5>
+                </div>
+                <div class="card-body">
+                    <h6>GenZ Financial Profile Dashboard</h6>
+                    <p>
+                        This Flask web application provides an interactive analysis of GenZ financial behavior, 
+                        focusing on income and expense patterns. The dashboard visualizes the relationship between 
+                        income categories and expense categories using a Diverging Bar Chart.
+                    </p>
+                    
+                    <h6 class="mt-4">Key Features</h6>
+                    <ul>
+                        <li><strong>Data Summary:</strong> Comprehensive overview of dataset statistics</li>
+                        <li><strong>Interactive Visualization:</strong> Diverging Bar Chart powered by Plotly</li>
+                        <li><strong>Financial Insights:</strong> Key metrics and patterns in GenZ finances</li>
+                        <li><strong>API Endpoints:</strong> JSON API for programmatic access</li>
+                        <li><strong>Responsive Design:</strong> Bootstrap-powered mobile-friendly interface</li>
+                    </ul>
+                    
+                    <h6 class="mt-4">Dataset Columns</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Column</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>avg_monthly_income</code></td>
+                                    <td>Average monthly income (numerical)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>avg_income_category</code></td>
+                                    <td>Income category (e.g., &lt;2jt, 2-4jt, etc.)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>avg_monthly_expense</code></td>
+                                    <td>Average monthly expense (numerical)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>avg_expense_category</code></td>
+                                    <td>Expense category (e.g., &lt;2jt, 2-4jt, etc.)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>financial_standing</code></td>
+                                    <td>Financial status (Surplus, Deficit, Break-even)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Technology Stack</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Backend</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Flask 3.0</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Pandas 2.1</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Python 3.11+</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Visualization</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Plotly 5.18</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Interactive Charts</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Frontend</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success me-2"></i>Bootstrap 5.3</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Font Awesome 6.4</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Responsive Design</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card mb-4 border-info">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">API Endpoints</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small">Access data programmatically:</p>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <code class="bg-light p-1">/api/stats</code><br>
+                            <small class="text-muted">Dataset statistics</small>
+                        </li>
+                        <li class="mb-2">
+                            <code class="bg-light p-1">/api/metrics</code><br>
+                            <small class="text-muted">Key metrics</small>
+                        </li>
+                        <li class="mb-2">
+                            <code class="bg-light p-1">/api/chart-data</code><br>
+                            <small class="text-muted">Chart data</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Future Extensions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-filter text-primary me-2"></i>Filters</h6>
+                            <p class="small">Add dynamic filters for province, age, gender, etc.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-chart-pie text-primary me-2"></i>More Charts</h6>
+                            <p class="small">Integrate Sankey, Heatmap, Treemap visualizations</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fas fa-download text-primary me-2"></i>Export</h6>
+                            <p class="small">Download charts as PNG/PDF or export data as CSV</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
