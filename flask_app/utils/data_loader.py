@@ -117,33 +117,114 @@ class DataLoader:
     
     def get_profession_chart_data(self):
         """
-        Prepare placeholder data for Profession/Employment Status chart
+        Prepare real data for Profession/Employment Status chart
+        Shows financial standing distribution by employment status
         
         Returns:
-            dict: Dictionary containing profession data
+            dict: Dictionary containing profession data with financial standing breakdown
         """
-        # Placeholder data - replace with actual column when available
-        profession_data = {
-            'categories': ['Student', 'Employed', 'Freelance', 'Entrepreneur', 'Unemployed'],
-            'values': [35, 28, 18, 12, 7],
-            'colors': ['#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#e74c3c']
+        if self.df is None:
+            self.load_data()
+        
+        # Group by employment status and financial standing
+        profession_standing = pd.crosstab(
+            self.df['employment_status'], 
+            self.df['financial_standing'], 
+            normalize='index'
+        ) * 100  # Convert to percentage
+        
+        # Order employment categories by most common
+        employment_counts = self.df['employment_status'].value_counts()
+        profession_standing = profession_standing.reindex(employment_counts.index)
+        
+        # Prepare data for stacked bar chart
+        categories = profession_standing.index.tolist()
+        
+        # Financial standing colors (consistent with theme)
+        colors = {
+            'Surplus': '#2ecc71',    # Green
+            'Break-even': '#f39c12', # Orange
+            'Deficit': '#e74c3c'     # Red
         }
-        return profession_data
+        
+        chart_data = {
+            'categories': categories,
+            'financial_standings': list(profession_standing.columns),
+            'data': {},
+            'colors': colors,
+            'total_counts': employment_counts.to_dict()
+        }
+        
+        # Add percentage data for each financial standing
+        for standing in profession_standing.columns:
+            if standing in profession_standing.columns:
+                chart_data['data'][standing] = profession_standing[standing].round(1).tolist()
+            else:
+                chart_data['data'][standing] = [0] * len(categories)
+        
+        return chart_data
     
     def get_education_chart_data(self):
         """
-        Prepare placeholder data for Education Level chart
+        Prepare real data for Education Level chart
+        Shows financial standing distribution by education level
         
         Returns:
-            dict: Dictionary containing education data
+            dict: Dictionary containing education data with financial standing breakdown
         """
-        # Placeholder data - replace with actual column when available
-        education_data = {
-            'categories': ['High School', 'Bachelor', 'Master', 'Diploma', 'Doctorate'],
-            'values': [22, 45, 18, 10, 5],
-            'colors': ['#1abc9c', '#3498db', '#9b59b6', '#f39c12', '#e74c3c']
+        if self.df is None:
+            self.load_data()
+        
+        # Define education level order (from lowest to highest)
+        education_order = [
+            'Elementary School',
+            'Junior High School',
+            'Senior High School',
+            'Diploma I/II/III',
+            'Bachelor (S1)/Diploma IV',
+            'Postgraduate'
+        ]
+        
+        # Group by education level and financial standing
+        education_standing = pd.crosstab(
+            self.df['education_level'], 
+            self.df['financial_standing'], 
+            normalize='index'
+        ) * 100  # Convert to percentage
+        
+        # Reindex to maintain education order
+        existing_education = [edu for edu in education_order if edu in education_standing.index]
+        education_standing = education_standing.reindex(existing_education)
+        
+        # Get total counts for each education level
+        education_counts = self.df['education_level'].value_counts()
+        
+        # Prepare data for stacked bar chart
+        categories = education_standing.index.tolist()
+        
+        # Financial standing colors (consistent with profession chart)
+        colors = {
+            'Surplus': '#2ecc71',    # Green
+            'Break-even': '#f39c12', # Orange
+            'Deficit': '#e74c3c'     # Red
         }
-        return education_data
+        
+        chart_data = {
+            'categories': categories,
+            'financial_standings': list(education_standing.columns),
+            'data': {},
+            'colors': colors,
+            'total_counts': education_counts.to_dict()
+        }
+        
+        # Add percentage data for each financial standing
+        for standing in education_standing.columns:
+            if standing in education_standing.columns:
+                chart_data['data'][standing] = education_standing[standing].round(1).tolist()
+            else:
+                chart_data['data'][standing] = [0] * len(categories)
+        
+        return chart_data
     
     def get_key_metrics(self):
         """

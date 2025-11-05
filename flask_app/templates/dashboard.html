@@ -130,27 +130,25 @@
                         
                         <!-- Profession Chart - 20% -->
                         <div class="viz-panel viz-side">
-                            <div class="viz-badge">
-                                <span class="badge bg-info">Preview</span>
-                            </div>
                             <div class="viz-content">
                                 {{ profession_chart|safe }}
                             </div>
                             <div class="viz-footer">
-                                <small class="text-muted">Employment Distribution</small>
+                                <small class="text-muted">
+                                    <strong>Key Insight:</strong> Shows how employment status correlates with financial outcomes
+                                </small>
                             </div>
                         </div>
                         
                         <!-- Education Chart - 20% -->
                         <div class="viz-panel viz-side">
-                            <div class="viz-badge">
-                                <span class="badge bg-info">Preview</span>
-                            </div>
                             <div class="viz-content">
                                 {{ education_chart|safe }}
                             </div>
                             <div class="viz-footer">
-                                <small class="text-muted">Education Level Distribution</small>
+                                <small class="text-muted">
+                                    <strong>Key Insight:</strong> Reveals education level's impact on financial stability
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -159,31 +157,39 @@
         </div>
     </div>
 
-    <!-- Insights Section -->
+    <!-- Enhanced Insights Section -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-primary">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-brain me-2"></i>Key Insights
+                        <i class="fas fa-brain me-2"></i>Key Insights & Analysis
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="text-primary"><i class="fas fa-check-circle me-2"></i>Observations</h6>
-                            <ul>
-                                <li>Most common income category: <strong>{{ metrics.most_common_income }}</strong></li>
-                                <li>Most common expense category: <strong>{{ metrics.most_common_expense }}</strong></li>
-                                <li>{{ metrics.matching_categories.count }} people ({{ metrics.matching_categories.percentage }}%) have matching income-expense categories</li>
+                        <div class="col-md-4">
+                            <h6 class="text-primary"><i class="fas fa-coins me-2"></i>Income vs Expense</h6>
+                            <ul class="small">
+                                <li>Most common income: <strong>{{ metrics.most_common_income }}</strong> ({{ metrics.most_common_income_pct }}%)</li>
+                                <li>Most common expense: <strong>{{ metrics.most_common_expense }}</strong> ({{ metrics.most_common_expense_pct }}%)</li>
+                                <li>{{ metrics.matching_categories.percentage }}% have matching income-expense categories</li>
                             </ul>
                         </div>
-                        <div class="col-md-6">
-                            <h6 class="text-primary"><i class="fas fa-lightbulb me-2"></i>Interpretation</h6>
-                            <ul>
-                                <li>If bars extend further on expense side → more people spending in that range</li>
-                                <li>Balanced bars → similar income and expense distribution</li>
-                                <li>Use this to identify financial health patterns</li>
+                        <div class="col-md-4">
+                            <h6 class="text-primary"><i class="fas fa-briefcase me-2"></i>Employment Patterns</h6>
+                            <ul class="small">
+                                <li>Employment status directly influences financial standing</li>
+                                <li>Stacked bars show % distribution of Surplus/Balance/Deficit per category</li>
+                                <li>Hover for exact counts and percentages</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-primary"><i class="fas fa-graduation-cap me-2"></i>Education Impact</h6>
+                            <ul class="small">
+                                <li>Higher education levels show varying financial outcomes</li>
+                                <li>Each bar represents 100% of respondents in that education tier</li>
+                                <li>Green=Surplus, Orange=Balance, Red=Deficit</li>
                             </ul>
                         </div>
                     </div>
