@@ -13,12 +13,13 @@ class ChartGenerator:
     def create_diverging_bar_chart(chart_data):
         """
         Create an enhanced Diverging Bar Chart for Income vs Expense comparison
+        with interactive category filtering and visual label feedback
         
         Args:
             chart_data (dict): Dictionary containing chart data
         
         Returns:
-            str: HTML div containing the Plotly chart
+            str: HTML div containing the Plotly chart with interactive filtering
         """
         categories = chart_data['categories']
         income_pct = chart_data['income_percentages']
@@ -44,7 +45,8 @@ class ChartGenerator:
             textposition='inside',
             textfont=dict(size=11, color='white', family='Arial, sans-serif'),
             hovertemplate='<b>%{y}</b><br>Expense: %{text}<br>Count: %{customdata}<br><extra></extra>',
-            customdata=expense_counts
+            customdata=expense_counts,
+            meta=[f'expense_{cat}' for cat in categories]
         ))
         
         # Add Income bars (positive values for right side) - Enhanced styling
@@ -62,16 +64,17 @@ class ChartGenerator:
             textposition='inside',
             textfont=dict(size=11, color='white', family='Arial, sans-serif'),
             hovertemplate='<b>%{y}</b><br>Income: %{text}<br>Count: %{customdata}<br><extra></extra>',
-            customdata=income_counts
+            customdata=income_counts,
+            meta=[f'income_{cat}' for cat in categories]
         ))
         
-        # Enhanced layout
+        # Enhanced layout with better spacing
         fig.update_layout(
             title={
-                'text': '<b>⚖️ Income vs Expense Distribution</b>',
+                'text': '<b>⚖️ Income vs Expense Distribution</b><br><sub style="font-size:11px; color:#7f8c8d; font-weight:normal;">Click any bar to highlight category • Click again to deselect</sub>',
                 'x': 0.5,
                 'xanchor': 'center',
-                'font': {'size': 18, 'family': 'Arial, sans-serif', 'color': '#2c3e50'}
+                'font': {'size': 17, 'family': 'Arial, sans-serif', 'color': '#2c3e50'}
             },
             barmode='overlay',
             xaxis={
@@ -89,7 +92,8 @@ class ChartGenerator:
                 'title': '<b>Financial Category (IDR/month)</b>',
                 'title_font': {'size': 13, 'color': '#34495e'},
                 'tickfont': {'size': 11, 'color': '#34495e'},
-                'gridcolor': 'rgba(189, 195, 199, 0.2)'
+                'gridcolor': 'rgba(189, 195, 199, 0.2)',
+                'side': 'left'
             },
             template='plotly_white',
             height=480,
@@ -98,7 +102,7 @@ class ChartGenerator:
             legend=dict(
                 orientation='h',
                 yanchor='bottom',
-                y=1.02,
+                y=1.05,
                 xanchor='center',
                 x=0.5,
                 font={'size': 12, 'color': '#2c3e50'},
@@ -108,7 +112,7 @@ class ChartGenerator:
             ),
             plot_bgcolor='rgba(250, 250, 250, 1)',
             paper_bgcolor='white',
-            margin=dict(l=140, r=30, t=80, b=60),
+            margin=dict(l=150, r=30, t=90, b=60),
             hoverlabel=dict(
                 bgcolor='white',
                 font_size=12,
@@ -116,7 +120,7 @@ class ChartGenerator:
             )
         )
         
-        # Convert to HTML
+        # Convert to HTML with custom div ID for JavaScript targeting
         chart_html = fig.to_html(
             include_plotlyjs='cdn',
             div_id='diverging-bar-chart',
@@ -135,7 +139,157 @@ class ChartGenerator:
             }
         )
         
-        return chart_html
+        # Enhanced JavaScript with label styling
+        interactive_script = """
+        <script>
+        (function() {
+            function initializeChartInteractivity() {
+                const chartDiv = document.getElementById('diverging-bar-chart');
+                if (!chartDiv || !chartDiv.data) {
+                    setTimeout(initializeChartInteractivity, 100);
+                    return;
+                }
+                
+                let selectedCategory = null;
+                const originalTickFont = { size: 11, color: '#34495e', family: 'Arial, sans-serif' };
+                
+                // Click handler for bar selection
+                chartDiv.on('plotly_click', function(data) {
+                    const point = data.points[0];
+                    const category = point.y;
+                    
+                    // Toggle selection
+                    if (selectedCategory === category) {
+                        resetFilter();
+                    } else {
+                        applyFilter(category);
+                    }
+                });
+                
+                // Apply category filter with enhanced label styling
+                function applyFilter(category) {
+                    selectedCategory = category;
+                    
+                    // Store in data attribute
+                    chartDiv.setAttribute('data-selected-category', category);
+                    
+                    // Dispatch event
+                    const event = new CustomEvent('categoryFiltered', {
+                        detail: { category: category },
+                        bubbles: true
+                    });
+                    chartDiv.dispatchEvent(event);
+                    
+                    // Get category index
+                    const categoryIndex = chartDiv.data[0].y.indexOf(category);
+                    
+                    // Visual feedback: dim non-selected bars
+                    const barUpdate = {
+                        'marker.opacity': [],
+                        'marker.line.width': []
+                    };
+                    
+                    chartDiv.data.forEach((trace) => {
+                        const opacities = [];
+                        const lineWidths = [];
+                        
+                        trace.y.forEach((cat) => {
+                            if (cat === category) {
+                                opacities.push(1.0);
+                                lineWidths.push(3);
+                            } else {
+                                opacities.push(0.25);
+                                lineWidths.push(1);
+                            }
+                        });
+                        
+                        barUpdate['marker.opacity'].push(opacities);
+                        barUpdate['marker.line.width'].push(lineWidths);
+                    });
+                    
+                    Plotly.restyle(chartDiv, barUpdate);
+                    
+                    // Enhanced Y-axis label styling
+                    const tickColors = chartDiv.data[0].y.map(cat => 
+                        cat === category ? '#e67e22' : 'rgba(52, 73, 94, 0.4)'
+                    );
+                    const tickSizes = chartDiv.data[0].y.map(cat => 
+                        cat === category ? 13 : 11
+                    );
+                    
+                    const labelUpdate = {
+                        'yaxis.tickfont.color': tickColors,
+                        'yaxis.tickfont.size': tickSizes
+                    };
+                    
+                    Plotly.relayout(chartDiv, labelUpdate);
+                    
+                    // Add visual highlight to selected label using CSS
+                    setTimeout(() => {
+                        const yaxisLabels = chartDiv.querySelectorAll('.ytick text');
+                        yaxisLabels.forEach((label, idx) => {
+                            if (idx === categoryIndex) {
+                                label.style.fontWeight = 'bold';
+                                label.style.fill = '#e67e22';
+                                label.style.fontSize = '13px';
+                                label.style.transition = 'all 0.3s ease';
+                            } else {
+                                label.style.fontWeight = 'normal';
+                                label.style.fill = 'rgba(52, 73, 94, 0.4)';
+                                label.style.fontSize = '11px';
+                            }
+                        });
+                    }, 50);
+                    
+                    console.log('Category filtered:', category);
+                }
+                
+                // Reset filter
+                function resetFilter() {
+                    selectedCategory = null;
+                    chartDiv.removeAttribute('data-selected-category');
+                    
+                    const event = new CustomEvent('categoryFilterReset', { bubbles: true });
+                    chartDiv.dispatchEvent(event);
+                    
+                    // Reset bars
+                    const barUpdate = {
+                        'marker.opacity': [[0.9, 0.9, 0.9, 0.9, 0.9, 0.9], [0.9, 0.9, 0.9, 0.9, 0.9, 0.9]],
+                        'marker.line.width': [[1.5, 1.5, 1.5, 1.5, 1.5, 1.5], [1.5, 1.5, 1.5, 1.5, 1.5, 1.5]]
+                    };
+                    Plotly.restyle(chartDiv, barUpdate);
+                    
+                    // Reset Y-axis labels
+                    const labelUpdate = {
+                        'yaxis.tickfont': originalTickFont
+                    };
+                    Plotly.relayout(chartDiv, labelUpdate);
+                    
+                    // Reset label styles via CSS
+                    setTimeout(() => {
+                        const yaxisLabels = chartDiv.querySelectorAll('.ytick text');
+                        yaxisLabels.forEach(label => {
+                            label.style.fontWeight = 'normal';
+                            label.style.fill = '#34495e';
+                            label.style.fontSize = '11px';
+                        });
+                    }, 50);
+                    
+                    console.log('Filter reset');
+                }
+                
+                // Expose reset function globally for alert button
+                window.resetCategoryFilter = resetFilter;
+                
+                console.log('Chart interactivity initialized with label feedback');
+            }
+            
+            initializeChartInteractivity();
+        })();
+        </script>
+        """
+        
+        return chart_html + interactive_script
     
     @staticmethod
     def create_profession_chart(profession_data):

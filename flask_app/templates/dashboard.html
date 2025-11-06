@@ -122,32 +122,32 @@
                             </div>
                             <div class="viz-footer">
                                 <small class="text-muted">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Hover bars for detailed insights
+                                    <i class="fas fa-mouse-pointer me-1"></i>
+                                    Interactive filtering enabled • Selected category shows in <strong style="color: #e67e22;">orange</strong>
                                 </small>
                             </div>
                         </div>
                         
                         <!-- Profession Chart - 20% -->
-                        <div class="viz-panel viz-side">
+                        <div class="viz-panel viz-side" id="profession-panel">
                             <div class="viz-content">
                                 {{ profession_chart|safe }}
                             </div>
                             <div class="viz-footer">
                                 <small class="text-muted">
-                                    <strong>Key Insight:</strong> Shows how employment status correlates with financial outcomes
+                                    Employment status vs financial outcomes
                                 </small>
                             </div>
                         </div>
                         
                         <!-- Education Chart - 20% -->
-                        <div class="viz-panel viz-side">
+                        <div class="viz-panel viz-side" id="education-panel">
                             <div class="viz-content">
                                 {{ education_chart|safe }}
                             </div>
                             <div class="viz-footer">
                                 <small class="text-muted">
-                                    <strong>Key Insight:</strong> Reveals education level's impact on financial stability
+                                    Education level's impact on stability
                                 </small>
                             </div>
                         </div>
@@ -163,34 +163,62 @@
             <div class="card border-primary">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">
-                        <i class="fas fa-brain me-2"></i>Key Insights & Analysis
+                        <i class="fas fa-lightbulb me-2"></i>Key Insights & Analysis
                     </h5>
                 </div>
                 <div class="card-body">
+                    <!-- Filter status indicator - only shows when filtered -->
+                    <div id="filter-status" class="alert alert-warning alert-dismissible mb-3" style="display: none;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-filter me-2"></i>
+                                <span>
+                                    <strong>Active Filter:</strong> Viewing category 
+                                    <span id="filter-category" class="badge bg-dark ms-1 me-1"></span>
+                                </span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-dark" onclick="window.resetCategoryFilter()">
+                                <i class="fas fa-times me-1"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                    
                     <div class="row">
-                        <div class="col-md-4">
-                            <h6 class="text-primary"><i class="fas fa-coins me-2"></i>Income vs Expense</h6>
-                            <ul class="small">
-                                <li>Most common income: <strong>{{ metrics.most_common_income }}</strong> ({{ metrics.most_common_income_pct }}%)</li>
-                                <li>Most common expense: <strong>{{ metrics.most_common_expense }}</strong> ({{ metrics.most_common_expense_pct }}%)</li>
-                                <li>{{ metrics.matching_categories.percentage }}% have matching income-expense categories</li>
-                            </ul>
+                        <div class="col-md-4 mb-3">
+                            <div class="insight-card">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-coins me-2"></i>Income vs Expense
+                                </h6>
+                                <ul class="small mb-0">
+                                    <li>Most common income: <strong>{{ metrics.most_common_income }}</strong> ({{ metrics.most_common_income_pct }}%)</li>
+                                    <li>Most common expense: <strong>{{ metrics.most_common_expense }}</strong> ({{ metrics.most_common_expense_pct }}%)</li>
+                                    <li>{{ metrics.matching_categories.percentage }}% have matching categories</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <h6 class="text-primary"><i class="fas fa-briefcase me-2"></i>Employment Patterns</h6>
-                            <ul class="small">
-                                <li>Employment status directly influences financial standing</li>
-                                <li>Stacked bars show % distribution of Surplus/Balance/Deficit per category</li>
-                                <li>Hover for exact counts and percentages</li>
-                            </ul>
+                        <div class="col-md-4 mb-3">
+                            <div class="insight-card">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-briefcase me-2"></i>Employment Patterns
+                                </h6>
+                                <ul class="small mb-0">
+                                    <li>Employment status directly influences financial outcomes</li>
+                                    <li>Stacked bars show percentage distribution</li>
+                                    <li>Hover for exact counts and details</li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <h6 class="text-primary"><i class="fas fa-graduation-cap me-2"></i>Education Impact</h6>
-                            <ul class="small">
-                                <li>Higher education levels show varying financial outcomes</li>
-                                <li>Each bar represents 100% of respondents in that education tier</li>
-                                <li>Green=Surplus, Orange=Balance, Red=Deficit</li>
-                            </ul>
+                        <div class="col-md-4 mb-3">
+                            <div class="insight-card">
+                                <h6 class="text-primary mb-2">
+                                    <i class="fas fa-graduation-cap me-2"></i>Education Impact
+                                </h6>
+                                <ul class="small mb-0">
+                                    <li>Education levels show varying outcomes</li>
+                                    <li>Each bar represents 100% of that tier</li>
+                                    <li>Color coded: Green/Orange/Red status</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -198,19 +226,47 @@
         </div>
     </div>
 </div>
+
+<script>
+// Enhanced global event listener with cleaner UI updates
+document.addEventListener('categoryFiltered', function(e) {
+    const category = e.detail.category;
+    const statusDiv = document.getElementById('filter-status');
+    const categorySpan = document.getElementById('filter-category');
+    
+    if (statusDiv && categorySpan) {
+        categorySpan.textContent = category;
+        statusDiv.style.display = 'block';
+        setTimeout(() => statusDiv.classList.add('show'), 10);
+    }
+});
+
+document.addEventListener('categoryFilterReset', function(e) {
+    const statusDiv = document.getElementById('filter-status');
+    
+    if (statusDiv) {
+        statusDiv.classList.remove('show');
+        setTimeout(() => statusDiv.style.display = 'none', 300);
+    }
+});
+</script>
 {% endblock %}
 
 {% block extra_css %}
 <style>
+    /* Base styles */
     .chart-container {
         min-height: 600px;
     }
+    
     .bg-light-success {
         background-color: #d4edda !important;
     }
+    
     .bg-light-danger {
         background-color: #f8d7da !important;
     }
+    
     .bg-light-warning {
         background-color: #fff3cd !important;
     }
@@ -227,7 +283,7 @@
     .viz-panel {
         position: relative;
         background: white;
-        border-right: 1px solid #e0e0e0;
+        border-right: 1px solid #dee2e6;
         display: flex;
         flex-direction: column;
         overflow: hidden;
@@ -265,31 +321,93 @@
     }
     
     .viz-footer {
-        padding: 10px;
+        padding: 10px 12px;
         text-align: center;
         border-top: 1px solid #e9ecef;
-        background: rgba(248, 249, 250, 0.6);
+        background: rgba(248, 249, 250, 0.7);
         flex-shrink: 0;
+        font-size: 0.85rem;
     }
     
-    .viz-badge {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 10;
+    .viz-footer strong {
+        color: #e67e22;
     }
     
-    /* Ensure Plotly charts fill their containers */
-    .viz-content .js-plotly-plot,
-    .viz-content .plotly,
-    .viz-content .plotly-graph-div {
-        width: 100% !important;
-        height: 100% !important;
+    /* Filter status alert */
+    #filter-status {
+        animation: slideDown 0.4s ease-out;
+        border-left: 3px solid #856404;
+        transition: all 0.3s ease;
     }
     
-    .viz-content .main-svg {
-        width: 100% !important;
-        height: 100% !important;
+    #filter-status.show {
+        opacity: 1;
+    }
+    
+    #filter-status .badge {
+        font-size: 0.95rem;
+        padding: 0.4em 0.7em;
+        font-weight: 600;
+    }
+    
+    @keyframes slideDown {
+        from { 
+            opacity: 0; 
+            transform: translateY(-10px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+    
+    /* Insight cards for cleaner layout */
+    .insight-card {
+        padding: 0.75rem;
+        border-left: 3px solid #0d6efd;
+        background: rgba(13, 110, 253, 0.03);
+        border-radius: 0.25rem;
+        height: 100%;
+    }
+    
+    .insight-card ul {
+        padding-left: 1.2rem;
+        margin-bottom: 0;
+    }
+    
+    .insight-card li {
+        margin-bottom: 0.4rem;
+        line-height: 1.5;
+    }
+    
+    /* Smooth panel transitions */
+    .viz-panel {
+        transition: opacity 0.3s ease, transform 0.2s ease;
+    }
+    
+    .viz-panel.filtered-out {
+        opacity: 0.6;
+        transform: scale(0.99);
+    }
+    
+    /* Y-axis label highlighting */
+    .ytick text {
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Card enhancements */
+    .card.shadow-sm {
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.075) !important;
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .card.shadow-sm:hover {
+        box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    /* Card header polish */
+    .card-header {
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
     }
     
     /* Responsive Design */
@@ -315,7 +433,7 @@
             flex: 1 1 auto;
             width: 100% !important;
             border-right: none;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid #dee2e6;
             min-height: 450px;
         }
         
@@ -332,20 +450,32 @@
         .viz-main,
         .viz-side {
             min-height: 350px;
+            padding: 10px;
+        }
+        
+        .visualization-grid {
+            gap: 0;
+        }
+        
+        .insight-card {
+            margin-bottom: 0.5rem;
         }
     }
     
-    /* Shadow and hover effects */
-    .card.shadow-sm {
-        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08) !important;
-        transition: box-shadow 0.3s ease;
+    /* Ensure Plotly charts fill containers */
+    .viz-content .js-plotly-plot,
+    .viz-content .plotly,
+    .viz-content .plotly-graph-div {
+        width: 100% !important;
+        height: 100% !important;
     }
     
-    .card.shadow-sm:hover {
-        box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.12) !important;
+    .viz-content .main-svg {
+        width: 100% !important;
+        height: 100% !important;
     }
     
-    /* Card body padding override */
+    /* Remove unnecessary padding */
     .card-body.p-0 {
         padding: 0 !important;
     }
