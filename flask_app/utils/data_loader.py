@@ -4,6 +4,7 @@ Handles CSV loading, preprocessing, and statistics calculation
 """
 import pandas as pd
 import os
+from .loan_processor import LoanProcessor
 
 
 class DataLoader:
@@ -273,3 +274,36 @@ class DataLoader:
                 'percentage': same_category_pct
             }
         }
+    
+    def get_loan_overview_data(self):
+        """
+        Get comprehensive loan overview data
+        
+        Returns:
+            dict: Loan statistics and distribution data
+        """
+        if self.df is None:
+            self.load_data()
+        
+        loan_processor = LoanProcessor(self.df)
+        
+        return {
+            'statistics': loan_processor.get_loan_statistics(),
+            'distribution': loan_processor.get_loan_distribution()
+        }
+    
+    def get_filtered_loan_data(self, income_category):
+        """
+        Get loan data filtered by income category
+        
+        Args:
+            income_category (str): Income category filter
+        
+        Returns:
+            dict: Filtered loan statistics
+        """
+        if self.df is None:
+            self.load_data()
+        
+        loan_processor = LoanProcessor(self.df)
+        return loan_processor.get_filtered_loan_stats(income_category)

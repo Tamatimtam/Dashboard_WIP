@@ -558,3 +558,83 @@ class ChartGenerator:
         )
         
         return chart_html
+    
+    @staticmethod
+    def create_loan_overview_chart(loan_distribution, loan_stats):
+        """
+        Create a compact donut chart for Outstanding Loan Overview
+        Shows loan distribution with KPI metrics
+        
+        Args:
+            loan_distribution (dict): Distribution data with categories and percentages
+            loan_stats (dict): Overall loan statistics
+        
+        Returns:
+            str: HTML div containing the Plotly chart
+        """
+        fig = go.Figure()
+        
+        categories = loan_distribution['categories']
+        percentages = loan_distribution['percentages']
+        counts = loan_distribution['counts']
+        colors = loan_distribution['colors']
+        
+        # Create donut chart
+        fig.add_trace(go.Pie(
+            labels=categories,
+            values=percentages,
+            hole=0.55,
+            marker=dict(
+                colors=colors,
+                line=dict(color='white', width=2)
+            ),
+            text=[f'{p:.1f}%' for p in percentages],
+            textposition='outside',
+            textfont=dict(size=10, color='#2c3e50'),
+            hovertemplate='<b>%{label}</b><br>%{value:.1f}%<br>Count: %{customdata}<extra></extra>',
+            customdata=counts,
+            direction='clockwise',
+            sort=False
+        ))
+        
+        # Add center text with total loan holders
+        fig.add_annotation(
+            text=f"<b>{loan_stats['with_loan']}</b><br><span style='font-size:10px;color:#7f8c8d'>with loans</span>",
+            x=0.5, y=0.5,
+            font=dict(size=16, color='#2c3e50'),
+            showarrow=False,
+            xref='paper',
+            yref='paper'
+        )
+        
+        fig.update_layout(
+            title={
+                'text': '<b>💳 Outstanding Loan Distribution</b>',
+                'x': 0.5,
+                'xanchor': 'center',
+                'font': {'size': 14, 'color': '#2c3e50'}
+            },
+            template='plotly_white',
+            height=320,
+            autosize=True,
+            showlegend=True,
+            legend=dict(
+                orientation='v',
+                yanchor='middle',
+                y=0.5,
+                xanchor='left',
+                x=1.05,
+                font={'size': 9, 'color': '#2c3e50'}
+            ),
+            paper_bgcolor='white',
+            margin=dict(l=20, r=120, t=50, b=20),
+            hoverlabel=dict(bgcolor='white', font_size=10)
+        )
+        
+        chart_html = fig.to_html(
+            include_plotlyjs=False,
+            div_id='loan-overview-chart',
+            config={'displayModeBar': False, 'responsive': True}
+        )
+        
+        return chart_html

@@ -157,6 +157,66 @@
         </div>
     </div>
 
+    <!-- Outstanding Loan Overview Panel -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="loan-overview-panel">
+                <h4 class="mb-3">
+                    <i class="fas fa-hand-holding-usd"></i> Outstanding Loan Overview
+                </h4>
+                
+                <!-- KPI Cards -->
+                <div class="loan-kpi-cards">
+                    <div class="loan-kpi-card primary">
+                        <div class="loan-kpi-label">Total with Loans</div>
+                        <div class="loan-kpi-value">{{ loan_stats.with_loan }}</div>
+                        <div class="loan-kpi-subtext">{{ loan_stats.with_loan_pct }}% of respondents</div>
+                    </div>
+                    <div class="loan-kpi-card success">
+                        <div class="loan-kpi-label">Average Loan</div>
+                        <div class="loan-kpi-value">
+                            {% if loan_stats.mean >= 1000000 %}
+                                Rp {{ "%.1f"|format(loan_stats.mean / 1000000) }}M
+                            {% else %}
+                                Rp {{ "%.0f"|format(loan_stats.mean) }}
+                            {% endif %}
+                        </div>
+                        <div class="loan-kpi-subtext">Among borrowers</div>
+                    </div>
+                    <div class="loan-kpi-card warning">
+                        <div class="loan-kpi-label">Median Loan</div>
+                        <div class="loan-kpi-value">
+                            {% if loan_stats.median >= 1000000 %}
+                                Rp {{ "%.1f"|format(loan_stats.median / 1000000) }}M
+                            {% else %}
+                                Rp {{ "%.0f"|format(loan_stats.median) }}
+                            {% endif %}
+                        </div>
+                        <div class="loan-kpi-subtext">50th percentile</div>
+                    </div>
+                    <div class="loan-kpi-card danger">
+                        <div class="loan-kpi-label">Maximum Loan</div>
+                        <div class="loan-kpi-value">
+                            {% if loan_stats.max >= 1000000 %}
+                                Rp {{ "%.1f"|format(loan_stats.max / 1000000) }}M
+                            {% else %}
+                                Rp {{ "%.0f"|format(loan_stats.max) }}
+                            {% endif %}
+                        </div>
+                        <div class="loan-kpi-subtext">Highest outstanding</div>
+                    </div>
+                </div>
+
+                <!-- Loan Distribution Chart -->
+                <div class="row">
+                    <div class="col-md-6 offset-md-3">
+                        {{ loan_chart|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Enhanced Insights Section -->
     <div class="row mb-4">
         <div class="col-12">

@@ -14,10 +14,6 @@ app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
 # Path to CSV data
 CSV_PATH = os.path.join('data', 'dataset_gelarrasa_genzfinancialprofile.csv')
 
-# Initialize data loader
-data_loader = DataLoader(CSV_PATH)
-
-
 @app.route('/')
 def index():
     """Home page - redirect to dashboard"""
@@ -31,6 +27,9 @@ def dashboard():
     Displays dataset statistics and the Diverging Bar Chart
     """
     try:
+        # Initialize data loader
+        data_loader = DataLoader(CSV_PATH)
+        
         # Load data
         data_loader.load_data()
         
@@ -45,10 +44,16 @@ def dashboard():
         profession_data = data_loader.get_profession_chart_data()
         education_data = data_loader.get_education_chart_data()
         
+        # Get loan overview data
+        loan_overview = data_loader.get_loan_overview_data()
+        loan_stats = loan_overview['statistics']
+        loan_distribution = loan_overview['distribution']
+        
         # Generate charts
         chart_html = ChartGenerator.create_diverging_bar_chart(chart_data)
         profession_chart = ChartGenerator.create_profession_chart(profession_data)
         education_chart = ChartGenerator.create_education_chart(education_data)
+        loan_chart = ChartGenerator.create_loan_overview_chart(loan_distribution, loan_stats)
         
         return render_template(
             'dashboard.html',
@@ -56,7 +61,9 @@ def dashboard():
             metrics=metrics,
             chart_html=chart_html,
             profession_chart=profession_chart,
-            education_chart=education_chart
+            education_chart=education_chart,
+            loan_chart=loan_chart,
+            loan_stats=loan_stats
         )
     
     except FileNotFoundError as e:
@@ -138,6 +145,13 @@ def internal_error(error):
 
 
 if __name__ == '__main__':
-    # Run the Flask app
-    # Debug mode ON for development - turn OFF in production
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    # Check if data file exists before starting
+    if not os.path.exists(CSV_PATH):
+        print(f"ERROR: Data file not found at {CSV_PATH}")
+        print("Please ensure the CSV file is in the correct location.")
+    else:
+        print(f"Starting Flask app...")
+        print(f"Data file found: {CSV_PATH}")
+        # Run the Flask app
+        # Debug mode ON for development - turn OFF in production
+        app.run(debug=True, host='0.0.0.0', port=5000)
