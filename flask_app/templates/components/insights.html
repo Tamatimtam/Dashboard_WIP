@@ -1,0 +1,68 @@
+<!-- templates/components/insights.html -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightbulb me-2"></i>Key Insights & Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Filter status indicator - only shows when filtered -->
+                <div id="filter-status" class="alert alert-warning alert-dismissible mb-3" style="display: none;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-filter me-2"></i>
+                            <span>
+                                <strong>Active Filter:</strong> Viewing category 
+                                <span id="filter-category" class="badge bg-dark ms-1 me-1"></span>
+                            </span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-dark" onclick="window.resetCategoryFilter()">
+                            <i class="fas fa-times me-1"></i>Clear
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="insight-card">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-coins me-2"></i>Income vs Expense
+                            </h6>
+                            <ul class="small mb-0">
+                                <li>Most common income: <strong>{{ metrics.most_common_income }}</strong> ({{ metrics.most_common_income_pct }}%)</li>
+                                <li>Most common expense: <strong>{{ metrics.most_common_expense }}</strong> ({{ metrics.most_common_expense_pct }}%)</li>
+                                <li>{{ metrics.matching_categories.percentage }}% have matching categories</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="insight-card">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-briefcase me-2"></i>Employment Patterns
+                            </h6>
+                            <ul class="small mb-0">
+                                <li>Employment status directly influences financial outcomes</li>
+                                <li>Stacked bars show percentage distribution</li>
+                                <li>Hover for exact counts and details</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="insight-card">
+                            <h6 class="text-primary mb-2">
+                                <i class="fas fa-graduation-cap me-2"></i>Education Impact
+                            </h6>
+                            <ul class="small mb-0">
+                                <li>Education levels show varying outcomes</li>
+                                <li>Each bar represents 100% of that tier</li>
+                                <li>Color coded: Green/Orange/Red status</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

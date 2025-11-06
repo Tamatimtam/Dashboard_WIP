@@ -1,0 +1,64 @@
+<!-- templates/components/loan_overview.html -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="loan-overview-panel">
+            <h4 class="mb-3">
+                <i class="fas fa-hand-holding-usd"></i> Outstanding Loan Overview
+            </h4>
+            
+            <!-- KPI Cards -->
+            <div class="loan-kpi-cards">
+                <div class="loan-kpi-card primary">
+                    <div class="loan-kpi-label">Total with Loans</div>
+                    <div class="loan-kpi-value" id="loan-total-value">{{ loan_stats.with_loan }}</div>
+                    <div class="loan-kpi-subtext" id="loan-total-subtext">{{ loan_stats.with_loan_pct }}% of respondents</div>
+                </div>
+                <div class="loan-kpi-card success">
+                    <div class="loan-kpi-label">Average Loan</div>
+                    <div class="loan-kpi-value" id="loan-avg-value">
+                        {% if loan_stats.mean >= 1000000 %}
+                            Rp {{ "%.1f"|format(loan_stats.mean / 1000000) }}M
+                        {% else %}
+                            Rp {{ "%.0f"|format(loan_stats.mean) }}
+                        {% endif %}
+                    </div>
+                    <div class="loan-kpi-subtext">Among borrowers</div>
+                </div>
+                <div class="loan-kpi-card warning">
+                    <div class="loan-kpi-label" id="loan-third-label">Total Outstanding</div>
+                    <div class="loan-kpi-value" id="loan-third-value">
+                        {% if loan_stats.total_outstanding >= 1000000000 %}
+                            Rp {{ "%.1f"|format(loan_stats.total_outstanding / 1000000000) }}B
+                        {% elif loan_stats.total_outstanding >= 1000000 %}
+                            Rp {{ "%.1f"|format(loan_stats.total_outstanding / 1000000) }}M
+                        {% else %}
+                            Rp {{ "%.0f"|format(loan_stats.total_outstanding) }}
+                        {% endif %}
+                    </div>
+                    <div class="loan-kpi-subtext" id="loan-third-subtext">Sum of all loans</div>
+                </div>
+                <div class="loan-kpi-card danger">
+                    <div class="loan-kpi-label">Maximum Loan</div>
+                    <div class="loan-kpi-value" id="loan-max-value">
+                        {% if loan_stats.max >= 1000000 %}
+                            Rp {{ "%.1f"|format(loan_stats.max / 1000000) }}M
+                        {% else %}
+                            Rp {{ "%.0f"|format(loan_stats.max) }}
+                        {% endif %}
+                    </div>
+                    <div class="loan-kpi-subtext">Highest outstanding</div>
+                </div>
+            </div>
+
+            <!-- Loan Distribution Chart -->
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <div id="loan-overview-chart" 
+                         data-initial-stats='{{ loan_stats|tojson }}'
+                         style="width: 100%; height: 320px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,224 @@
+/* static/css/dashboard.css */
+
+/* Base styles */
+.chart-container {
+    min-height: 600px;
+}
+
+.bg-light-success {
+    background-color: #d4edda !important;
+}
+
+.bg-light-danger {
+    background-color: #f8d7da !important;
+}
+
+.bg-light-warning {
+    background-color: #fff3cd !important;
+}
+
+/* 60/20/20 Visualization Grid */
+.visualization-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    min-height: 550px;
+    background: #f8f9fa;
+}
+
+.viz-panel {
+    position: relative;
+    background: white;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.viz-panel:last-child {
+    border-right: none;
+}
+
+.viz-main {
+    flex: 0 0 60%;
+    width: 60%;
+    padding: 15px;
+}
+
+.viz-side {
+    flex: 0 0 20%;
+    width: 20%;
+    padding: 15px 10px;
+}
+
+.viz-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 450px;
+}
+
+.viz-content > div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.viz-footer {
+    padding: 10px 12px;
+    text-align: center;
+    border-top: 1px solid #e9ecef;
+    background: rgba(248, 249, 250, 0.7);
+    flex-shrink: 0;
+    font-size: 0.85rem;
+}
+
+.viz-footer strong {
+    color: #e67e22;
+}
+
+/* Filter status alert */
+#filter-status {
+    animation: slideDown 0.4s ease-out;
+    border-left: 3px solid #856404;
+    transition: all 0.3s ease;
+}
+
+#filter-status.show {
+    opacity: 1;
+}
+
+#filter-status .badge {
+    font-size: 0.95rem;
+    padding: 0.4em 0.7em;
+    font-weight: 600;
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Insight cards for cleaner layout */
+.insight-card {
+    padding: 0.75rem;
+    border-left: 3px solid #0d6efd;
+    background: rgba(13, 110, 253, 0.03);
+    border-radius: 0.25rem;
+    height: 100%;
+}
+
+.insight-card ul {
+    padding-left: 1.2rem;
+    margin-bottom: 0;
+}
+
+.insight-card li {
+    margin-bottom: 0.4rem;
+    line-height: 1.5;
+}
+
+/* Smooth panel transitions */
+.viz-panel.filtered-out {
+    opacity: 0.6;
+    transform: scale(0.99);
+}
+
+/* Y-axis label highlighting */
+.ytick text {
+    transition: all 0.3s ease !important;
+}
+
+/* Card enhancements */
+.card.shadow-sm {
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.075) !important;
+    transition: box-shadow 0.3s ease;
+}
+
+.card.shadow-sm:hover {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Card header polish */
+.card-header {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+    .viz-main {
+        flex: 0 0 55%;
+        width: 55%;
+    }
+    
+    .viz-side {
+        flex: 0 0 22.5%;
+        width: 22.5%;
+    }
+}
+
+@media (max-width: 1200px) {
+    .visualization-grid {
+        flex-direction: column;
+    }
+    
+    .viz-main,
+    .viz-side {
+        flex: 1 1 auto;
+        width: 100% !important;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+        min-height: 450px;
+    }
+    
+    .viz-panel:last-child {
+        border-bottom: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .viz-content {
+        min-height: 350px;
+    }
+    
+    .viz-main,
+    .viz-side {
+        min-height: 350px;
+        padding: 10px;
+    }
+    
+    .visualization-grid {
+        gap: 0;
+    }
+    
+    .insight-card {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Ensure Plotly charts fill containers */
+.viz-content .js-plotly-plot,
+.viz-content .plotly,
+.viz-content .plotly-graph-div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.viz-content .main-svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Remove unnecessary padding */
+.card-body.p-0 {
+    padding: 0 !important;
+}

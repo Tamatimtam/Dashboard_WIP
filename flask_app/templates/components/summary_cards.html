@@ -1,0 +1,50 @@
+<!-- templates/components/summary_cards.html -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-primary h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-database me-2"></i>Total Records
+                </h5>
+                <h2 class="display-6">{{ stats.total_rows }}</h2>
+                <p class="card-text small">Data rows analyzed</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-success h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-money-bill-wave me-2"></i>Top Income
+                </h5>
+                <h3 class="h5">{{ metrics.most_common_income }}</h3>
+                <p class="card-text">{{ metrics.most_common_income_pct }}% of population</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-danger h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-shopping-cart me-2"></i>Top Expense
+                </h5>
+                <h3 class="h5">{{ metrics.most_common_expense }}</h3>
+                <p class="card-text">{{ metrics.most_common_expense_pct }}% of population</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-white bg-info h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i class="fas fa-balance-scale me-2"></i>Matching
+                </h5>
+                <h2 class="display-6">{{ metrics.matching_categories.percentage }}%</h2>
+                <p class="card-text small">Same income-expense category</p>
+            </div>
+        </div>
+    </div>
+</div>

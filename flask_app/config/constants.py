@@ -2,8 +2,29 @@
 Application Constants and Configuration
 Centralized configuration for the GenZ Financial Dashboard
 """
+import os
 
-# Chart Configuration
+# ============================================================================
+# DATA CONFIGURATION (Centralized)
+# ============================================================================
+# Single source of truth for data file location
+DATA_PATH = 'data'
+CSV_FILENAME = 'dataset_gelarrasa_genzfinancialprofile.csv'
+CSV_PATH = os.path.join(DATA_PATH, CSV_FILENAME)
+
+# ============================================================================
+# FLASK CONFIGURATION
+# ============================================================================
+FLASK_CONFIG = {
+    'SECRET_KEY': 'your-secret-key-here-change-in-production',
+    'DEBUG': True,
+    'HOST': '0.0.0.0',
+    'PORT': 5000
+}
+
+# ============================================================================
+# CHART CONFIGURATION
+# ============================================================================
 CHART_CONFIG = {
     'displayModeBar': True,
     'displaylogo': False,
@@ -18,7 +39,10 @@ CHART_CONFIG = {
     }
 }
 
-# Category Order
+# ============================================================================
+# CATEGORY CONFIGURATION
+# ============================================================================
+# Category Order for Income/Expense
 CATEGORY_ORDER = ['N/A', '<2jt', '2-4jt', '4-6jt', '6-10jt', '10-15jt', '>15jt']
 
 # Financial Standing Colors
@@ -47,7 +71,9 @@ EDUCATION_ORDER = [
     'Postgraduate'
 ]
 
-# API Configuration
+# ============================================================================
+# API CONFIGURATION
+# ============================================================================
 API_ENDPOINTS = {
     'stats': '/api/stats',
     'metrics': '/api/metrics',
@@ -55,15 +81,3 @@ API_ENDPOINTS = {
     'loan_filtered': '/api/loan-filtered',
     'loan_validation': '/api/loan-validation'
 }
-
-# Flask Configuration
-FLASK_CONFIG = {
-    'SECRET_KEY': 'your-secret-key-here-change-in-production',
-    'DEBUG': True,
-    'HOST': '0.0.0.0',
-    'PORT': 5000
-}
-
-# File Paths
-DATA_PATH = 'data'
-CSV_FILENAME = 'dataset_gelarrasa_genzfinancialprofile.csv'
