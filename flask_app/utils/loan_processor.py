@@ -168,7 +168,9 @@ class LoanProcessor:
         if len(filtered_df) == 0:
             return self._get_empty_filtered_stats()
         
-        loan_data = filtered_df['outstanding_loan']
+        # CRITICAL FIX: Fill NaN with 0 before processing
+        # Ensures NULL values are treated as "No Loan" for consistent counting
+        loan_data = filtered_df['outstanding_loan'].fillna(0)
         loan_data_with_loans = loan_data[loan_data > 0]
         
         # Calculate statistics
@@ -220,7 +222,7 @@ class LoanProcessor:
     
     def _count_loans_in_category(self, category, loan_data=None):
         """
-        Count loans in a specific category
+        Count loans in a specific category (NULL-safe)
         
         Args:
             category (dict): Category definition with min/max values
@@ -231,6 +233,10 @@ class LoanProcessor:
         """
         if loan_data is None:
             loan_data = self.df['outstanding_loan']
+        
+        # CRITICAL FIX: Fill NaN with 0 to ensure all records are categorized
+        # Treats missing loan data as "No Loan" for consistent aggregation
+        loan_data = loan_data.fillna(0)
         
         if category['max'] == 0:
             return int((loan_data == 0).sum())
