@@ -128,6 +128,8 @@ code {
     color: white;
     text-align: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
 }
 
 .loan-kpi-card.primary {
@@ -146,6 +148,28 @@ code {
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
 }
 
+/* Loading state for KPI cards */
+.loan-kpi-card.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
 .loan-kpi-label {
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -158,11 +182,13 @@ code {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 4px;
+    transition: all 0.3s ease;
 }
 
 .loan-kpi-subtext {
     font-size: 0.7rem;
     opacity: 0.8;
+    transition: all 0.3s ease;
 }
 
 @media (max-width: 768px) {

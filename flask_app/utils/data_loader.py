@@ -292,18 +292,31 @@ class DataLoader:
             'distribution': loan_processor.get_loan_distribution()
         }
     
-    def get_filtered_loan_data(self, income_category):
+    def get_loan_validation_report(self):
         """
-        Get loan data filtered by income category
-        
-        Args:
-            income_category (str): Income category filter
+        Get loan data validation report
         
         Returns:
-            dict: Filtered loan statistics
+            dict: Validation report
         """
         if self.df is None:
             self.load_data()
         
         loan_processor = LoanProcessor(self.df)
-        return loan_processor.get_filtered_loan_stats(income_category)
+        return loan_processor.validate_loan_data()
+    
+    def get_filtered_loan_overview(self, income_category=None):
+        """
+        Get loan overview filtered by income category
+        
+        Args:
+            income_category (str): Income category filter
+        
+        Returns:
+            dict: Filtered loan statistics and distribution
+        """
+        if self.df is None:
+            self.load_data()
+        
+        loan_processor = LoanProcessor(self.df)
+        return loan_processor.get_filtered_loan_data_by_income(income_category)
