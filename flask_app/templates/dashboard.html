@@ -350,9 +350,10 @@ function renderLoanChart(data) {
     const counts = distribution.map(d => d.count);
     const colors = distribution.map(d => d.color);
     
+    // Enhanced center text with more context
     const centerText = data.filter_applied && data.filter_applied !== 'All'
-        ? `<b>${data.with_loan}</b><br><span style='font-size:10px;color:#7f8c8d'>in ${data.filter_applied}</span>`
-        : `<b>${data.with_loan}</b><br><span style='font-size:10px;color:#7f8c8d'>with loans</span>`;
+        ? `<b style="font-size:20px">${data.with_loan}</b><br><span style='font-size:11px;color:#7f8c8d'>with loans</span><br><span style='font-size:9px;color:#95a5a6'>in ${data.filter_applied}</span>`
+        : `<b style="font-size:20px">${data.with_loan}</b><br><span style='font-size:11px;color:#7f8c8d'>with loans</span><br><span style='font-size:9px;color:#95a5a6'>of ${data.total_respondents} total</span>`;
     
     const chartData = [{
         labels: categories,
@@ -366,16 +367,29 @@ function renderLoanChart(data) {
                 width: 2
             }
         },
-        text: percentages.map(p => `${p.toFixed(1)}%`),
+        // Clean single label format: percentage with count
+        text: percentages.map((p, i) => `${p.toFixed(1)}% (${counts[i]})`),
         textposition: 'outside',
         textfont: {
-            size: 10,
-            color: '#2c3e50'
+            size: 11,
+            color: '#2c3e50',
+            family: 'Arial, sans-serif',
+            weight: 500
         },
-        hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>Count: %{customdata}<extra></extra>',
+        // Disable automatic text template to prevent duplication
+        texttemplate: '',
+        textinfo: 'text',  // Show only our custom text
+        // Enhanced hover with detailed breakdown
+        hovertemplate: '<b>%{label}</b><br>' +
+                      '<b>%{value:.1f}%</b> of borrowers<br>' +
+                      '<b>%{customdata} people</b><br>' +
+                      '<i>Click slice for details</i>' +
+                      '<extra></extra>',
         customdata: counts,
         direction: 'clockwise',
-        sort: false
+        sort: false,
+        insidetextorientation: 'horizontal',
+        pull: percentages.map(p => p > 25 ? 0.05 : 0)  // Slightly pull out larger slices
     }];
     
     const layout = {
@@ -384,8 +398,14 @@ function renderLoanChart(data) {
             x: 0.5,
             xanchor: 'center',
             font: {
-                size: 14,
-                color: '#2c3e50'
+                size: 15,
+                color: '#2c3e50',
+                family: 'Arial, sans-serif',
+                weight: 600
+            },
+            pad: {
+                t: 10,
+                b: 5
             }
         },
         annotations: [{
@@ -394,7 +414,8 @@ function renderLoanChart(data) {
             y: 0.5,
             font: {
                 size: 16,
-                color: '#2c3e50'
+                color: '#2c3e50',
+                family: 'Arial, sans-serif'
             },
             showarrow: false,
             xref: 'paper',
@@ -406,21 +427,30 @@ function renderLoanChart(data) {
             yanchor: 'middle',
             y: 0.5,
             xanchor: 'left',
-            x: 1.05,
+            x: 1.12,
             font: {
-                size: 9,
-                color: '#2c3e50'
-            }
+                size: 10,
+                color: '#2c3e50',
+                family: 'Arial, sans-serif'
+            },
+            bgcolor: 'rgba(255, 255, 255, 0.95)',
+            bordercolor: '#dee2e6',
+            borderwidth: 1,
+            tracegroupgap: 5
         },
         margin: {
-            l: 20,
-            r: 120,
-            t: 50,
-            b: 20
+            l: 30,
+            r: 160,
+            t: 60,
+            b: 30
         },
         paper_bgcolor: 'white',
-        height: 320,
-        template: 'plotly_white'
+        height: 340,
+        template: 'plotly_white',
+        uniformtext: {
+            mode: 'hide',
+            minsize: 9
+        }
     };
     
     const config = {
@@ -429,7 +459,7 @@ function renderLoanChart(data) {
     };
     
     Plotly.newPlot(chartDiv, chartData, layout, config);
-    console.log('Loan chart rendered');
+    console.log('Loan chart rendered with streamlined single percentage labels');
 }
 
 function initializeLoanPanelListeners() {
