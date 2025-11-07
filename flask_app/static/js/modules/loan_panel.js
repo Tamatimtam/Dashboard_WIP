@@ -48,7 +48,18 @@ function renderLoanChart(data) {
     const categories = distribution.map(d => d.category);
     const percentages = distribution.map(d => d.percentage);
     const counts = distribution.map(d => d.count);
-    const colors = distribution.map(d => d.color);
+    
+    // Custom color scheme: Green for No Loan, graduated reds for loan categories
+    const colorMapping = {
+        'No Loan': '#27ae60',      // Green
+        '<5M': '#ffb3ba',          // Soft/Light Red
+        '5M-10M': '#ff8a8a',       // Medium Red
+        '10M-15M': '#ff5757',      // Strong Red
+        '>15M': '#e74c3c'          // Strongest/Deepest Red
+    };
+    
+    // Map colors based on category names
+    const colors = categories.map(cat => colorMapping[cat] || '#95a5a6');
     
     // Calculate total with loans from distribution (excluding 'No Loan')
     const totalWithLoans = distribution
@@ -149,6 +160,20 @@ function renderLoanPurposeChart(data, category) {
         const colors = data.map(d => d.color);
         const totalCount = counts.reduce((a, b) => a + b, 0);
 
+        // Icon mapping for each purpose
+        const iconMapping = {
+            'Konsumsi': '🛒',
+            'Pendidikan': '🎓',
+            'Gaya': '💄',
+            'Usaha': '💼'
+        };
+
+        // Add icons to purpose labels
+        const purposesWithIcons = purposes.map(purpose => {
+            const icon = iconMapping[purpose] || '📊';
+            return `${icon} ${purpose}`;
+        });
+
         // Dynamic title based on filter
         const titleText = category && category !== 'All' 
             ? `Loan Usage (${totalCount} borrowers in ${category})` 
@@ -157,35 +182,38 @@ function renderLoanPurposeChart(data, category) {
         // Create pie trace (FULL PIE - no hole)
         const pieTrace = {
             values: percentages,
-            labels: purposes,
+            labels: purposesWithIcons,
             type: 'pie',
-            // REMOVED: hole: 0.4 to make it a full pie
-            domain: { x: [0, 0.45], y: [0, 1] }, // Adjusted domain for better spacing
+            domain: { x: [0, 0.45], y: [0, 1] },
             marker: { 
                 colors: colors, 
                 line: { color: '#ffffff', width: 2 } 
             },
-            textposition: 'auto', // Changed from 'inside' for better label positioning
+            textposition: 'auto',
             textinfo: 'label+percent',
             textfont: { size: 11, color: '#2c3e50', family: 'Arial, sans-serif' },
             hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
             customdata: counts,
-            showlegend: false // Hide legend since we show labels on pie
+            showlegend: false
         };
 
-        // Create bar trace
+        // Create bar trace with thinner bars
         const barTrace = {
-            y: purposes,
+            y: purposesWithIcons,
             x: counts,
             type: 'bar',
             orientation: 'h',
             xaxis: 'x2',
             yaxis: 'y2',
-            marker: { color: colors },
+            marker: { 
+                color: colors,
+                line: { color: '#ffffff', width: 1 }
+            },
             text: counts.map(c => `${c}`),
             textposition: 'outside',
             textfont: { size: 11, color: '#2c3e50', family: 'Arial, sans-serif' },
             hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>',
+            width: 0.6 // Make bars thinner (default is 0.8)
         };
 
         const layout = {
@@ -197,18 +225,19 @@ function renderLoanPurposeChart(data, category) {
             },
             height: 340,
             template: 'plotly_white',
-            margin: { l: 20, r: 20, t: 50, b: 40 }, // Increased margins
-            showlegend: false, // Disabled legend to prevent overlap
-            // Pie chart doesn't need axis config since we removed it
+            margin: { l: 80, r: 20, t: 50, b: 40 }, // Increased left margin for icons
+            showlegend: false,
             
             // Bar chart axis (right side)
             xaxis2: {
-                domain: [0.50, 1], // Adjusted domain for better spacing
+                domain: [0.50, 1],
                 anchor: 'y2',
-                showgrid: false,
+                showgrid: true,
+                gridcolor: '#f0f0f0',
                 zeroline: false,
                 showticklabels: true,
-                range: [0, Math.max(...counts) * 1.15]
+                range: [0, Math.max(...counts) * 1.15],
+                tickfont: { size: 10 }
             },
             yaxis2: {
                 domain: [0, 1],
@@ -216,7 +245,9 @@ function renderLoanPurposeChart(data, category) {
                 autorange: 'reversed',
                 showgrid: false,
                 zeroline: false,
-                tickfont: { size: 11, color: '#2c3e50' }
+                tickfont: { size: 12, color: '#2c3e50' },
+                ticklen: 0,
+                ticksuffix: '  ' // Add space after labels
             }
         };
 
