@@ -50,6 +50,16 @@ function renderLoanChart(data) {
     const counts = distribution.map(d => d.count);
     const colors = distribution.map(d => d.color);
     
+    // Calculate total with loans from distribution (excluding 'No Loan')
+    const totalWithLoans = distribution
+        .filter(d => d.category !== 'No Loan')
+        .reduce((sum, d) => sum + d.count, 0);
+    
+    // Dynamic title based on filter
+    const filterText = data.filter_applied && data.filter_applied !== 'All'
+        ? ` (${totalWithLoans} borrowers in ${data.filter_applied})`
+        : ` (${totalWithLoans} borrowers)`;
+    
     const centerText = data.filter_applied && data.filter_applied !== 'All'
         ? `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span><br><span style='font-size:10px;color:#95a5a6'>in ${data.filter_applied}</span>`
         : `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span>`;
@@ -73,7 +83,7 @@ function renderLoanChart(data) {
     
     const layout = {
         title: {
-            text: '<b>💳 Outstanding Loan Distribution</b>',
+            text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`,
             x: 0.5,
             xanchor: 'center',
             font: { size: 16, color: '#2c3e50', family: 'Arial, sans-serif' }
@@ -144,23 +154,23 @@ function renderLoanPurposeChart(data, category) {
             ? `Loan Usage (${totalCount} borrowers in ${category})` 
             : `Loan Usage Purpose (${totalCount} borrowers)`;
 
-        // Create pie trace
+        // Create pie trace (FULL PIE - no hole)
         const pieTrace = {
             values: percentages,
             labels: purposes,
             type: 'pie',
-            hole: 0.4,
-            domain: { x: [0, 0.48], y: [0, 1] },
+            // REMOVED: hole: 0.4 to make it a full pie
+            domain: { x: [0, 0.45], y: [0, 1] }, // Adjusted domain for better spacing
             marker: { 
                 colors: colors, 
                 line: { color: '#ffffff', width: 2 } 
             },
-            textposition: 'inside',
-            textinfo: 'percent',
-            textfont: { size: 12, color: 'white', family: 'Arial, sans-serif' },
+            textposition: 'auto', // Changed from 'inside' for better label positioning
+            textinfo: 'label+percent',
+            textfont: { size: 11, color: '#2c3e50', family: 'Arial, sans-serif' },
             hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
             customdata: counts,
-            showlegend: true
+            showlegend: false // Hide legend since we show labels on pie
         };
 
         // Create bar trace
@@ -187,19 +197,13 @@ function renderLoanPurposeChart(data, category) {
             },
             height: 340,
             template: 'plotly_white',
-            margin: { l: 10, r: 10, t: 50, b: 40 },
-            showlegend: true,
-            legend: {
-                orientation: 'v',
-                yanchor: 'middle',
-                y: 0.5,
-                xanchor: 'left',
-                x: 0.01,
-                font: { size: 10 }
-            },
+            margin: { l: 20, r: 20, t: 50, b: 40 }, // Increased margins
+            showlegend: false, // Disabled legend to prevent overlap
+            // Pie chart doesn't need axis config since we removed it
+            
             // Bar chart axis (right side)
             xaxis2: {
-                domain: [0.52, 1],
+                domain: [0.50, 1], // Adjusted domain for better spacing
                 anchor: 'y2',
                 showgrid: false,
                 zeroline: false,

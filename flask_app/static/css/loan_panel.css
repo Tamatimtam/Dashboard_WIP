@@ -105,6 +105,11 @@
     height: 100% !important;
 }
 
+/* Prevent legend overlap issues */
+.loan-chart-container .legend {
+    max-width: 150px !important;
+}
+
 /* Loading Overlay for Charts */
 .chart-loading-overlay {
     position: absolute;
@@ -159,5 +164,17 @@
 @media (max-width: 991.98px) {
     .loan-chart-container {
         min-height: 360px;
+    }
+    
+    /* Stack pie and bar vertically on smaller screens */
+    #loan-purpose-chart .plotly {
+        height: 500px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .loan-chart-container {
+        padding: 10px;
+        min-height: 320px;
     }
 }
