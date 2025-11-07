@@ -25,7 +25,7 @@
     <!-- Main Visualization - 3-Part Layout (60/20/20) -->
     {% include 'components/visual_analytics.html' %}
 
-    <!-- Outstanding Loan Overview Panel -->
+    <!-- Loan & Engagement Panel -->
     {% include 'components/loan_overview.html' %}
 
     <!-- Enhanced Insights Section -->
@@ -39,5 +39,5 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/loan_panel.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/charts_panel.css') }}">
 {% endblock %}

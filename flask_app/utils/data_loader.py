@@ -5,6 +5,7 @@ Handles CSV loading, preprocessing, and statistics calculation
 import pandas as pd
 import os
 from .loan_processor import LoanProcessor
+from .engagement_processor import EngagementProcessor
 
 
 class DataLoader:
@@ -344,3 +345,39 @@ class DataLoader:
         # Use the LoanProcessor with the (potentially) filtered DataFrame
         loan_processor = LoanProcessor(filtered_df)
         return loan_processor.get_loan_purpose_distribution()
+
+    def get_filtered_engagement_data(self, income_category=None):
+        """
+        Get digital engagement distribution, filterable by income category.
+
+        Args:
+            income_category (str, optional): The income category to filter by.
+                                             If None or 'All', uses the full dataset.
+
+        Returns:
+            dict: A dictionary containing histogram, KDE, and stats for the
+                  (potentially) filtered data, plus a baseline KDE for comparison.
+        """
+        if self.df is None:
+            self.load_data()
+        
+        # 1. Get baseline distribution for the entire dataset
+        baseline_processor = EngagementProcessor(self.df)
+        baseline_data = baseline_processor.get_engagement_distribution()
+
+        # 2. Get filtered distribution
+        if income_category and income_category != 'All':
+            filtered_df = self.df[self.df['avg_income_category'] == income_category].copy()
+            filtered_processor = EngagementProcessor(filtered_df)
+            filtered_data = filtered_processor.get_engagement_distribution()
+        else:
+            # If no filter, the filtered data is the baseline data
+            filtered_data = baseline_data
+            
+        # 3. Combine results into a single response payload
+        response = {
+            'filtered_data': filtered_data,
+            'baseline_kde': baseline_data['kde']  # For the "ghost line"
+        }
+        
+        return response

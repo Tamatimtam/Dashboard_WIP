@@ -1,6 +1,6 @@
-/* static/css/loan_panel.css */
+/* static/css/charts_panel.css */
 
-.loan-overview-panel {
+.charts-section-panel {
     background-color: #ffffff;
     padding: 2rem;
     border-radius: 8px;
@@ -8,7 +8,7 @@
     border: 1px solid #e9ecef;
 }
 
-.loan-overview-panel h4 {
+.charts-section-panel h4 {
     font-weight: 600;
     color: #2c3e50;
     text-align: center;
@@ -78,13 +78,14 @@
 }
 
 #loan-overview-chart,
-#loan-purpose-chart {
+#loan-purpose-chart,
+#digital-time-chart {
     transition: opacity 0.3s ease;
     min-height: 340px;
 }
 
 /* Chart Container */
-.loan-chart-container {
+.chart-container {
     background-color: white;
     border-radius: 8px;
     padding: 20px;
@@ -98,15 +99,15 @@
 }
 
 /* Ensure Plotly charts fill containers properly */
-.loan-chart-container .js-plotly-plot,
-.loan-chart-container .plotly,
-.loan-chart-container .plotly-graph-div {
+.chart-container .js-plotly-plot,
+.chart-container .plotly,
+.chart-container .plotly-graph-div {
     width: 100% !important;
     height: 100% !important;
 }
 
 /* Prevent legend overlap issues */
-.loan-chart-container .legend {
+.chart-container .legend {
     max-width: 150px !important;
 }
 
@@ -162,7 +163,7 @@
 
 /* Responsive adjustments */
 @media (max-width: 991.98px) {
-    .loan-chart-container {
+    .chart-container {
         min-height: 360px;
     }
     
@@ -173,7 +174,7 @@
 }
 
 @media (max-width: 768px) {
-    .loan-chart-container {
+    .chart-container {
         padding: 10px;
         min-height: 320px;
     }

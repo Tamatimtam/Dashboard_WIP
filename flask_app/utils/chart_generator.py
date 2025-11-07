@@ -122,7 +122,8 @@ class ChartGenerator:
         
         # Convert to HTML with custom div ID for JavaScript targeting
         chart_html = fig.to_html(
-            include_plotlyjs='cdn',
+            # CRITICAL FIX: Set to False. The library is now loaded in base.html
+            include_plotlyjs=False,
             div_id='diverging-bar-chart',
             config={
                 'displayModeBar': True,
@@ -145,7 +146,7 @@ class ChartGenerator:
         (function() {
             function initializeChartInteractivity() {
                 const chartDiv = document.getElementById('diverging-bar-chart');
-                if (!chartDiv || !chartDiv.data) {
+                if (!chartDiv || typeof Plotly === 'undefined' || !chartDiv.data) {
                     setTimeout(initializeChartInteractivity, 100);
                     return;
                 }
@@ -295,7 +296,7 @@ class ChartGenerator:
                 window.chartResetFilter = resetFilter;
                 
                 // Listen for external reset calls
-                chartDiv.addEventListener('categoryFilterReset', function() {
+                document.addEventListener('categoryFilterReset', function() {
                     if (selectedCategory !== null) {
                         resetFilter();
                     }
@@ -577,7 +578,7 @@ class ChartGenerator:
         )
         
         chart_html = fig.to_html(
-            include_plotlyjs='cdn',
+            include_plotlyjs=False,
             div_id='grouped-bar-chart',
             config={'displayModeBar': True, 'displaylogo': False}
         )

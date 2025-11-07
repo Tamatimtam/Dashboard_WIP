@@ -5,6 +5,10 @@ import {
     initializeLoanPurposeChart,
     updateLoanPurposeChart
 } from './modules/loan_panel.js';
+import {
+    initializeDigitalTimeChart,
+    updateDigitalTimeChart
+} from './modules/digital_time_chart.js';
 
 // Global state
 let currentFilterCategory = null;
@@ -15,9 +19,10 @@ let currentFilterCategory = null;
 function initializeDashboard() {
     console.log('Dashboard initialized, setting up event listeners...');
     
-    // Initialize the loan charts
+    // Initialize all charts
     initializeLoanChart();
     initializeLoanPurposeChart();
+    initializeDigitalTimeChart(); // <-- ADDED
     
     // Listen for custom events dispatched from other charts or components
     document.addEventListener('categoryFiltered', handleCategoryFilter);
@@ -54,7 +59,8 @@ function handleCategoryFilter(e) {
     
     // Update all dependent components
     updateLoanPanel(category);
-    updateLoanPurposeChart(category); // <-- SYNCHRONIZATION HOOK
+    updateLoanPurposeChart(category);
+    updateDigitalTimeChart(category); // <-- ADDED SYNCHRONIZATION
 }
 
 /**
@@ -74,7 +80,8 @@ function handleFilterReset() {
     
     // Reset all dependent components to show all data
     updateLoanPanel(null);
-    updateLoanPurposeChart(null); // <-- SYNCHRONIZATION HOOK
+    updateLoanPurposeChart(null);
+    updateDigitalTimeChart(null); // <-- ADDED SYNCHRONIZATION
 }
 
 // Initialize the dashboard when the DOM is fully loaded

@@ -8,6 +8,7 @@ from utils.data_loader import DataLoader
 
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
+# (existing api_stats, api_metrics, api_chart_data endpoints remain the same)
 @api_bp.route('/stats')
 def api_stats():
     """API endpoint to get dataset statistics in JSON format"""
@@ -114,4 +115,27 @@ def api_loan_validation():
         return jsonify(validation_report)
     except Exception as e:
         api_bp.logger.error(f"API loan-validation error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@api_bp.route('/digital-time/<category>')
+def api_digital_time(category):
+    """
+    API endpoint for digital time spent distribution, filterable by income category.
+    """
+    try:
+        decoded_category = urllib.parse.unquote(category)
+        
+        # Validate category
+        valid_categories = ['All', 'N/A', '<2jt', '2-4jt', '4-6jt', '6-10jt', '10-15jt', '>15jt']
+        if decoded_category not in valid_categories:
+            return jsonify({'error': f'Invalid category: {decoded_category}'}), 400
+        
+        data_loader = DataLoader(CSV_PATH)
+        data_loader.load_data()
+        
+        engagement_data = data_loader.get_filtered_engagement_data(decoded_category)
+        return jsonify(engagement_data)
+
+    except Exception as e:
+        api_bp.logger.error(f"API digital-time error: {str(e)}")
         return jsonify({'error': str(e)}), 500
