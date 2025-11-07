@@ -77,7 +77,87 @@
     margin-top: 4px;
 }
 
-#loan-overview-chart {
+#loan-overview-chart,
+#loan-purpose-chart {
     transition: opacity 0.3s ease;
     min-height: 340px;
+}
+
+/* Chart Container */
+.loan-chart-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 100%;
+    min-height: 380px; /* Ensures consistent height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* For loading overlays */
+}
+
+/* Ensure Plotly charts fill containers properly */
+.loan-chart-container .js-plotly-plot,
+.loan-chart-container .plotly,
+.loan-chart-container .plotly-graph-div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Loading Overlay for Charts */
+.chart-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 8px;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chart-loading-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.chart-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-width: 0.3rem;
+    color: #3498db;
+}
+
+/* Placeholder styles */
+.placeholder-chart {
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+}
+
+.placeholder-content {
+    text-align: center;
+    color: #6c757d;
+    padding: 20px;
+}
+
+.placeholder-content.text-danger {
+    color: #dc3545;
+}
+
+.placeholder-content i {
+    margin-bottom: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .loan-chart-container {
+        min-height: 360px;
+    }
 }

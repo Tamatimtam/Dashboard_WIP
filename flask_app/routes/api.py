@@ -75,6 +75,29 @@ def api_loan_filtered(category):
         api_bp.logger.error(f"API loan-filtered error: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@api_bp.route('/loan-purpose/<category>')
+def api_loan_purpose(category):
+    """
+    API endpoint for loan usage purpose distribution, filterable by income category.
+    """
+    try:
+        decoded_category = urllib.parse.unquote(category)
+        
+        # Validate category
+        valid_categories = ['All', 'N/A', '<2jt', '2-4jt', '4-6jt', '6-10jt', '10-15jt', '>15jt']
+        if decoded_category not in valid_categories:
+            return jsonify({'error': f'Invalid category: {decoded_category}'}), 400
+            
+        data_loader = DataLoader(CSV_PATH)
+        data_loader.load_data()
+        
+        purpose_data = data_loader.get_filtered_loan_purpose_data(decoded_category)
+        return jsonify(purpose_data)
+
+    except Exception as e:
+        api_bp.logger.error(f"API loan-purpose error: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @api_bp.route('/loan-validation')
 def api_loan_validation():
     """

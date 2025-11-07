@@ -17,6 +17,15 @@ class LoanProcessor:
         {'name': '10M-15M', 'min': 10_000_001, 'max': 15_000_000, 'color': '#e67e22'},
         {'name': '>15M', 'min': 15_000_001, 'max': float('inf'), 'color': '#e74c3c'}
     ]
+
+    # Loan purpose visual mapping
+    LOAN_PURPOSE_MAP = {
+        'Konsumsi': {'color': '#3498db', 'icon': 'fas fa-shopping-cart'},
+        'Pendidikan': {'color': '#9b59b6', 'icon': 'fas fa-graduation-cap'},
+        'Usaha': {'color': '#2ecc71', 'icon': 'fas fa-store'},
+        'Gaya': {'color': '#e74c3c', 'icon': 'fas fa-gem'},
+        'Lainnya': {'color': '#95a5a6', 'icon': 'fas fa-ellipsis-h'}
+    }
     
     def __init__(self, df):
         """
@@ -219,7 +228,46 @@ class LoanProcessor:
         stats['distribution'] = distribution
         
         return stats
-    
+
+    def get_loan_purpose_distribution(self):
+        """
+        Calculates the distribution of loan usage purposes from the dataframe.
+
+        Returns:
+            list: A list of dictionaries, each containing purpose, count, percentage, color, and icon.
+        """
+        # Filter out non-borrowers and NaN/null purposes
+        purpose_data = self.df[
+            (self.df['outstanding_loan'] > 0) &
+            (self.df['loan_usage_purpose'].notna()) &
+            (self.df['loan_usage_purpose'] != 'Tidak Ada')
+        ]['loan_usage_purpose']
+
+        if purpose_data.empty:
+            return []
+
+        # Calculate counts and total
+        purpose_counts = purpose_data.value_counts()
+        total_with_purpose = purpose_counts.sum()
+
+        distribution = []
+        for purpose, count in purpose_counts.items():
+            percentage = (count / total_with_purpose) * 100 if total_with_purpose > 0 else 0
+            mapping = self.LOAN_PURPOSE_MAP.get(purpose, self.LOAN_PURPOSE_MAP['Lainnya'])
+            
+            distribution.append({
+                'purpose': purpose,
+                'count': int(count),
+                'percentage': round(percentage, 1),
+                'color': mapping['color'],
+                'icon': mapping['icon']
+            })
+            
+        # Sort by count for better visualization
+        distribution.sort(key=lambda x: x['count'], reverse=True)
+        
+        return distribution
+
     def _count_loans_in_category(self, category, loan_data=None):
         """
         Count loans in a specific category (NULL-safe)
@@ -293,41 +341,6 @@ class LoanProcessor:
         if amount >= 1_000_000_000:
             return f"Rp {amount/1_000_000_000:.1f}B"
         elif amount >= 1_000_000:
-            return f"Rp {amount/1_000_000:.1f}M"
-        elif amount >= 1_000:
-            return f"Rp {amount/1_000:.1f}K"
-        else:
-            return f"Rp {amount:.0f}"
-    
-    def _get_empty_filtered_stats(self):
-        """Return empty filtered statistics structure"""
-        return {
-            'filter_applied': None,
-            'total_respondents': 0,
-            'with_loan': 0,
-            'without_loan': 0,
-            'with_loan_pct': 0.0,
-            'without_loan_pct': 0.0,
-            'mean': 0.0,
-            'median': 0.0,
-            'mode': 0.0,
-            'max': 0.0,
-            'min': 0.0,
-            'total_outstanding': 0.0,
-            'distribution': []
-        }
-    
-    def format_currency(self, amount):
-        """
-        Format amount as Indonesian Rupiah
-        
-        Args:
-            amount (float): Amount to format
-        
-        Returns:
-            str: Formatted currency string
-        """
-        if amount >= 1_000_000:
             return f"Rp {amount/1_000_000:.1f}M"
         elif amount >= 1_000:
             return f"Rp {amount/1_000:.1f}K"

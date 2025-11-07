@@ -320,3 +320,27 @@ class DataLoader:
         
         loan_processor = LoanProcessor(self.df)
         return loan_processor.get_filtered_loan_data_by_income(income_category)
+
+    def get_filtered_loan_purpose_data(self, income_category=None):
+        """
+        Get loan purpose distribution filtered by income category.
+
+        Args:
+            income_category (str, optional): The income category to filter by.
+                                             If None or 'All', uses the full dataset.
+
+        Returns:
+            list: A list of dictionaries with loan purpose distribution data.
+        """
+        if self.df is None:
+            self.load_data()
+
+        # Filter the DataFrame based on the provided income category
+        if income_category and income_category != 'All':
+            filtered_df = self.df[self.df['avg_income_category'] == income_category].copy()
+        else:
+            filtered_df = self.df.copy()
+        
+        # Use the LoanProcessor with the (potentially) filtered DataFrame
+        loan_processor = LoanProcessor(filtered_df)
+        return loan_processor.get_loan_purpose_distribution()

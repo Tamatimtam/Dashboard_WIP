@@ -50,12 +50,37 @@
                 </div>
             </div>
 
-            <!-- Loan Distribution Chart -->
+            <!-- Loan Charts Section -->
+            <div class="row mt-4">
+                <!-- Column 1: Loan Distribution Chart -->
+                <div class="col-lg-6 mb-4">
+                    <div class="loan-chart-container">
+                        <div id="loan-overview-chart" 
+                             data-initial-stats='{{ loan_stats|tojson }}'
+                             style="width: 100%; height: 340px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: Loan Usage Purpose -->
+                <div class="col-lg-6 mb-4">
+                    <div class="loan-chart-container">
+                        <div id="loan-purpose-chart" style="width: 100%; height: 340px;">
+                            <!-- This div will be populated by Plotly.js -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Digital Time Spent (Placeholder) -->
             <div class="row">
-                <div class="col-md-6 offset-md-3">
-                    <div id="loan-overview-chart" 
-                         data-initial-stats='{{ loan_stats|tojson }}'
-                         style="width: 100%; height: 320px;">
+                <div class="col-12">
+                    <div class="loan-chart-container placeholder-chart">
+                        <div class="placeholder-content">
+                            <i class="fas fa-clock fa-2x text-muted"></i>
+                            <h6 class="mt-2">Digital Time Spent per Day</h6>
+                            <small class="text-muted">Chart coming soon</small>
+                        </div>
                     </div>
                 </div>
             </div>

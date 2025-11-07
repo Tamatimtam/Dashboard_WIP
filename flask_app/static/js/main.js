@@ -1,5 +1,10 @@
 // static/js/main.js
-import { initializeLoanChart, updateLoanPanel } from './modules/loan_panel.js';
+import { 
+    initializeLoanChart, 
+    updateLoanPanel, 
+    initializeLoanPurposeChart,
+    updateLoanPurposeChart
+} from './modules/loan_panel.js';
 
 // Global state
 let currentFilterCategory = null;
@@ -10,8 +15,9 @@ let currentFilterCategory = null;
 function initializeDashboard() {
     console.log('Dashboard initialized, setting up event listeners...');
     
-    // Initialize the loan chart
+    // Initialize the loan charts
     initializeLoanChart();
+    initializeLoanPurposeChart();
     
     // Listen for custom events dispatched from other charts or components
     document.addEventListener('categoryFiltered', handleCategoryFilter);
@@ -46,8 +52,9 @@ function handleCategoryFilter(e) {
         setTimeout(() => statusDiv.classList.add('show'), 10);
     }
     
-    // Update the loan panel with filtered data
+    // Update all dependent components
     updateLoanPanel(category);
+    updateLoanPurposeChart(category); // <-- SYNCHRONIZATION HOOK
 }
 
 /**
@@ -65,8 +72,9 @@ function handleFilterReset() {
         setTimeout(() => statusDiv.style.display = 'none', 300);
     }
     
-    // Reset the loan panel to show all data
+    // Reset all dependent components to show all data
     updateLoanPanel(null);
+    updateLoanPurposeChart(null); // <-- SYNCHRONIZATION HOOK
 }
 
 // Initialize the dashboard when the DOM is fully loaded

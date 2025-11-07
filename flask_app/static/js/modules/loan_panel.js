@@ -109,6 +109,128 @@ function renderLoanChart(data) {
 }
 
 /**
+ * Renders the combined pie and bar chart for loan usage purposes.
+ * @param {Array} data - Array of loan purpose objects from the API.
+ * @param {string|null} category - The active filter category for the title.
+ */
+function renderLoanPurposeChart(data, category) {
+    const chartDiv = document.getElementById('loan-purpose-chart');
+    if (!chartDiv) {
+        console.warn('Loan purpose chart container not found.');
+        return;
+    }
+
+    // Clear previous content and handle no-data state
+    if (!data || data.length === 0) {
+        chartDiv.innerHTML = `
+            <div class="placeholder-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                <i class="fas fa-info-circle fa-2x text-muted"></i>
+                <h6 class="mt-2">No Loan Purpose Data</h6>
+                <small class="text-muted">No borrowers found in this category.</small>
+            </div>`;
+        return;
+    }
+
+    try {
+        // Prepare data for charts (sorted by count descending)
+        const purposes = data.map(d => d.purpose);
+        const counts = data.map(d => d.count);
+        const percentages = data.map(d => d.percentage);
+        const colors = data.map(d => d.color);
+        const totalCount = counts.reduce((a, b) => a + b, 0);
+
+        // Dynamic title based on filter
+        const titleText = category && category !== 'All' 
+            ? `Loan Usage (${totalCount} borrowers in ${category})` 
+            : `Loan Usage Purpose (${totalCount} borrowers)`;
+
+        // Create pie trace
+        const pieTrace = {
+            values: percentages,
+            labels: purposes,
+            type: 'pie',
+            hole: 0.4,
+            domain: { x: [0, 0.48], y: [0, 1] },
+            marker: { 
+                colors: colors, 
+                line: { color: '#ffffff', width: 2 } 
+            },
+            textposition: 'inside',
+            textinfo: 'percent',
+            textfont: { size: 12, color: 'white', family: 'Arial, sans-serif' },
+            hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
+            customdata: counts,
+            showlegend: true
+        };
+
+        // Create bar trace
+        const barTrace = {
+            y: purposes,
+            x: counts,
+            type: 'bar',
+            orientation: 'h',
+            xaxis: 'x2',
+            yaxis: 'y2',
+            marker: { color: colors },
+            text: counts.map(c => `${c}`),
+            textposition: 'outside',
+            textfont: { size: 11, color: '#2c3e50', family: 'Arial, sans-serif' },
+            hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>',
+        };
+
+        const layout = {
+            title: {
+                text: `<b>🎯 ${titleText}</b>`,
+                x: 0.5,
+                xanchor: 'center',
+                font: { size: 16, color: '#2c3e50', family: 'Arial, sans-serif' }
+            },
+            height: 340,
+            template: 'plotly_white',
+            margin: { l: 10, r: 10, t: 50, b: 40 },
+            showlegend: true,
+            legend: {
+                orientation: 'v',
+                yanchor: 'middle',
+                y: 0.5,
+                xanchor: 'left',
+                x: 0.01,
+                font: { size: 10 }
+            },
+            // Bar chart axis (right side)
+            xaxis2: {
+                domain: [0.52, 1],
+                anchor: 'y2',
+                showgrid: false,
+                zeroline: false,
+                showticklabels: true,
+                range: [0, Math.max(...counts) * 1.15]
+            },
+            yaxis2: {
+                domain: [0, 1],
+                anchor: 'x2',
+                autorange: 'reversed',
+                showgrid: false,
+                zeroline: false,
+                tickfont: { size: 11, color: '#2c3e50' }
+            }
+        };
+
+        const config = { displayModeBar: false, responsive: true };
+        Plotly.newPlot(chartDiv, [pieTrace, barTrace], layout, config);
+        
+    } catch (error) {
+        console.error('Error rendering loan purpose chart:', error);
+        chartDiv.innerHTML = `
+            <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                <h6 class="mt-2">Failed to Load Chart</h6>
+                <small>Error: ${error.message}</small>
+            </div>`;
+    }
+}
+
+/**
  * Shows a loading overlay on the loan panel.
  */
 function showLoadingState() {
@@ -117,8 +239,9 @@ function showLoadingState() {
         card.style.opacity = '0.6';
         card.style.pointerEvents = 'none';
     });
-    const chartDiv = document.getElementById('loan-overview-chart');
-    if (chartDiv) chartDiv.style.opacity = '0.6';
+    document.querySelectorAll('.loan-chart-container > div').forEach(chartDiv => {
+        chartDiv.style.opacity = '0.6';
+    });
 }
 
 /**
@@ -130,9 +253,11 @@ function hideLoadingState() {
         card.style.opacity = '1';
         card.style.pointerEvents = 'auto';
     });
-    const chartDiv = document.getElementById('loan-overview-chart');
-    if (chartDiv) chartDiv.style.opacity = '1';
+     document.querySelectorAll('.loan-chart-container > div').forEach(chartDiv => {
+        chartDiv.style.opacity = '1';
+    });
 }
+
 
 /**
  * Displays an error message in the filter status area.
@@ -180,9 +305,8 @@ export function updateLoanPanel(category) {
     console.log('Updating loan panel for category:', category || 'All');
     showLoadingState();
     
-    const apiUrl = category && category !== 'All' 
-        ? `/api/loan-filtered/${encodeURIComponent(category)}` 
-        : '/api/loan-filtered/All';
+    const categoryParam = category || 'All';
+    const apiUrl = `/api/loan-filtered/${encodeURIComponent(categoryParam)}`;
     
     fetch(apiUrl)
         .then(response => {
@@ -201,7 +325,7 @@ export function updateLoanPanel(category) {
             
             updateKPICard('loan-third-label', 'Total Outstanding');
             updateKPICard('loan-third-value', formatCurrency(data.total_outstanding));
-            updateKPICard('loan-third-subtext', category && category !== 'All' ? `In ${category} category` : 'Sum of all loans');
+            updateKPICard('loan-third-subtext', category && category !== 'All' ? `In ${category}` : 'Sum of all loans');
             
             updateKPICard('loan-max-value', formatCurrency(data.max));
             
@@ -217,7 +341,45 @@ export function updateLoanPanel(category) {
 }
 
 /**
- * Initializes the loan chart with initial data.
+ * Fetches filtered loan purpose data and updates the chart.
+ * @param {string|null} category - The income category to filter by.
+ */
+export function updateLoanPurposeChart(category) {
+    console.log('Updating loan purpose chart for category:', category || 'All');
+    const chartDiv = document.getElementById('loan-purpose-chart');
+    if (chartDiv) chartDiv.style.opacity = '0.6';
+
+    const categoryParam = category || 'All';
+    const apiUrl = `/api/loan-purpose/${encodeURIComponent(categoryParam)}`;
+
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Loan purpose data received:', data);
+            renderLoanPurposeChart(data, category);
+            if (chartDiv) chartDiv.style.opacity = '1';
+        })
+        .catch(error => {
+            console.error('Error updating loan purpose chart:', error);
+            if (chartDiv) {
+                chartDiv.style.opacity = '1';
+                chartDiv.innerHTML = `
+                    <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <h6 class="mt-2">Failed to Load Chart</h6>
+                        <small>${error.message}</small>
+                    </div>`;
+            }
+        });
+}
+
+/**
+ * Initializes the loan distribution chart with initial data.
  */
 export function initializeLoanChart() {
     const chartContainer = document.getElementById('loan-overview-chart');
@@ -236,5 +398,49 @@ export function initializeLoanChart() {
             .catch(error => console.error('Error loading initial loan data:', error));
     } catch (error) {
         console.error('Error initializing loan chart:', error);
+    }
+}
+
+/**
+ * Initializes the loan purpose chart with initial, unfiltered data.
+ */
+export function initializeLoanPurposeChart() {
+    const chartContainer = document.getElementById('loan-purpose-chart');
+    if (!chartContainer) {
+        console.error('Loan purpose chart container not found.');
+        return;
+    }
+
+    console.log('Initializing loan purpose chart...');
+    
+    try {
+        fetch('/api/loan-purpose/All')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Initial loan purpose data loaded:', data);
+                renderLoanPurposeChart(data, 'All');
+            })
+            .catch(error => {
+                console.error('Error loading initial loan purpose data:', error);
+                chartContainer.innerHTML = `
+                    <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                        <h6 class="mt-2">Failed to Load Chart</h6>
+                        <small>${error.message}</small>
+                    </div>`;
+            });
+    } catch (error) {
+        console.error('Fatal error initializing loan purpose chart:', error);
+        chartContainer.innerHTML = `
+            <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                <h6 class="mt-2">Failed to Load Chart</h6>
+                <small>${error.message}</small>
+            </div>`;
     }
 }
