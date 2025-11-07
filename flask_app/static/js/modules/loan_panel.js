@@ -153,26 +153,14 @@ function renderLoanPurposeChart(data, category) {
     }
 
     try {
-        // Prepare data for charts (sorted by count descending)
-        const purposes = data.map(d => d.purpose);
+        // --- REFACTORED SECTION ---
+        // Prepare data directly from the API response
+        const purposesWithIcons = data.map(d => `${d.icon} ${d.purpose}`);
         const counts = data.map(d => d.count);
         const percentages = data.map(d => d.percentage);
         const colors = data.map(d => d.color);
         const totalCount = counts.reduce((a, b) => a + b, 0);
-
-        // Icon mapping for each purpose
-        const iconMapping = {
-            'Konsumsi': '🛒',
-            'Pendidikan': '🎓',
-            'Gaya': '💄',
-            'Usaha': '💼'
-        };
-
-        // Add icons to purpose labels
-        const purposesWithIcons = purposes.map(purpose => {
-            const icon = iconMapping[purpose] || '📊';
-            return `${icon} ${purpose}`;
-        });
+        // --- END REFACTORED SECTION ---
 
         // Dynamic title based on filter
         const titleText = category && category !== 'All' 

@@ -2694,6 +2694,29 @@ Werkzeug==3.0.1
           api_bp.logger.error(f"API loan-filtered error: {str(e)}")
           return jsonify({'error': str(e)}), 500
   
+  @api_bp.route('/loan-purpose/<category>')
+  def api_loan_purpose(category):
+      """
+      API endpoint for loan usage purpose distribution, filterable by income category.
+      """
+      try:
+          decoded_category = urllib.parse.unquote(category)
+          
+          # Validate category
+          valid_categories = ['All', 'N/A', '<2jt', '2-4jt', '4-6jt', '6-10jt', '10-15jt', '>15jt']
+          if decoded_category not in valid_categories:
+              return jsonify({'error': f'Invalid category: {decoded_category}'}), 400
+              
+          data_loader = DataLoader(CSV_PATH)
+          data_loader.load_data()
+          
+          purpose_data = data_loader.get_filtered_loan_purpose_data(decoded_category)
+          return jsonify(purpose_data)
+  
+      except Exception as e:
+          api_bp.logger.error(f"API loan-purpose error: {str(e)}")
+          return jsonify({'error': str(e)}), 500
+  
   @api_bp.route('/loan-validation')
   def api_loan_validation():
       """
@@ -2711,7 +2734,6 @@ Werkzeug==3.0.1
       except Exception as e:
           api_bp.logger.error(f"API loan-validation error: {str(e)}")
           return jsonify({'error': str(e)}), 500
-
   [File Ends] routes\api.py
 
   [File Begins] routes\pages.py
@@ -3104,7 +3126,8 @@ Werkzeug==3.0.1
         margin-top: 4px;
     }
     
-    #loan-overview-chart {
+    #loan-overview-chart,
+    #loan-purpose-chart {
         transition: opacity 0.3s ease;
         min-height: 340px;
     }
@@ -3120,6 +3143,50 @@ Werkzeug==3.0.1
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative; /* For loading overlays */
+    }
+    
+    /* Ensure Plotly charts fill containers properly */
+    .loan-chart-container .js-plotly-plot,
+    .loan-chart-container .plotly,
+    .loan-chart-container .plotly-graph-div {
+        width: 100% !important;
+        height: 100% !important;
+    }
+    
+    /* Prevent legend overlap issues */
+    .loan-chart-container .legend {
+        max-width: 150px !important;
+    }
+    
+    /* Loading Overlay for Charts */
+    .chart-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        border-radius: 8px;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+    
+    .chart-loading-overlay.visible {
+        opacity: 1;
+        pointer-events: all;
+    }
+    
+    .chart-spinner {
+        width: 2.5rem;
+        height: 2.5rem;
+        border-width: 0.3rem;
+        color: #3498db;
     }
     
     /* Placeholder styles */
@@ -3131,6 +3198,15 @@ Werkzeug==3.0.1
     .placeholder-content {
         text-align: center;
         color: #6c757d;
+        padding: 20px;
+    }
+    
+    .placeholder-content.text-danger {
+        color: #dc3545;
+    }
+    
+    .placeholder-content i {
+        margin-bottom: 10px;
     }
     
     /* Responsive adjustments */
@@ -3138,8 +3214,19 @@ Werkzeug==3.0.1
         .loan-chart-container {
             min-height: 360px;
         }
+        
+        /* Stack pie and bar vertically on smaller screens */
+        #loan-purpose-chart .plotly {
+            height: 500px !important;
+        }
     }
-
+    
+    @media (max-width: 768px) {
+        .loan-chart-container {
+            padding: 10px;
+            min-height: 320px;
+        }
+    }
     [File Ends] static\css\loan_panel.css
 
     [File Begins] static\css\style.css
@@ -3350,7 +3437,12 @@ Werkzeug==3.0.1
 
     [File Begins] static\js\main.js
     // static/js/main.js
-    import { initializeLoanChart, updateLoanPanel } from './modules/loan_panel.js';
+    import { 
+        initializeLoanChart, 
+        updateLoanPanel, 
+        initializeLoanPurposeChart,
+        updateLoanPurposeChart
+    } from './modules/loan_panel.js';
     
     // Global state
     let currentFilterCategory = null;
@@ -3361,8 +3453,9 @@ Werkzeug==3.0.1
     function initializeDashboard() {
         console.log('Dashboard initialized, setting up event listeners...');
         
-        // Initialize the loan chart
+        // Initialize the loan charts
         initializeLoanChart();
+        initializeLoanPurposeChart();
         
         // Listen for custom events dispatched from other charts or components
         document.addEventListener('categoryFiltered', handleCategoryFilter);
@@ -3397,8 +3490,9 @@ Werkzeug==3.0.1
             setTimeout(() => statusDiv.classList.add('show'), 10);
         }
         
-        // Update the loan panel with filtered data
+        // Update all dependent components
         updateLoanPanel(category);
+        updateLoanPurposeChart(category); // <-- SYNCHRONIZATION HOOK
     }
     
     /**
@@ -3416,13 +3510,13 @@ Werkzeug==3.0.1
             setTimeout(() => statusDiv.style.display = 'none', 300);
         }
         
-        // Reset the loan panel to show all data
+        // Reset all dependent components to show all data
         updateLoanPanel(null);
+        updateLoanPurposeChart(null); // <-- SYNCHRONIZATION HOOK
     }
     
     // Initialize the dashboard when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', initializeDashboard);
-
     [File Ends] static\js\main.js
 
       [File Begins] static\js\modules\loan_panel.js
@@ -3476,7 +3570,28 @@ Werkzeug==3.0.1
           const categories = distribution.map(d => d.category);
           const percentages = distribution.map(d => d.percentage);
           const counts = distribution.map(d => d.count);
-          const colors = distribution.map(d => d.color);
+          
+          // Custom color scheme: Green for No Loan, graduated reds for loan categories
+          const colorMapping = {
+              'No Loan': '#27ae60',      // Green
+              '<5M': '#ffb3ba',          // Soft/Light Red
+              '5M-10M': '#ff8a8a',       // Medium Red
+              '10M-15M': '#ff5757',      // Strong Red
+              '>15M': '#e74c3c'          // Strongest/Deepest Red
+          };
+          
+          // Map colors based on category names
+          const colors = categories.map(cat => colorMapping[cat] || '#95a5a6');
+          
+          // Calculate total with loans from distribution (excluding 'No Loan')
+          const totalWithLoans = distribution
+              .filter(d => d.category !== 'No Loan')
+              .reduce((sum, d) => sum + d.count, 0);
+          
+          // Dynamic title based on filter
+          const filterText = data.filter_applied && data.filter_applied !== 'All'
+              ? ` (${totalWithLoans} borrowers in ${data.filter_applied})`
+              : ` (${totalWithLoans} borrowers)`;
           
           const centerText = data.filter_applied && data.filter_applied !== 'All'
               ? `<b style="font-size:22px">${data.with_loan}</b><br><span style='font-size:12px;color:#7f8c8d'>with loans</span><br><span style='font-size:10px;color:#95a5a6'>in ${data.filter_applied}</span>`
@@ -3501,7 +3616,7 @@ Werkzeug==3.0.1
           
           const layout = {
               title: {
-                  text: '<b>💳 Outstanding Loan Distribution</b>',
+                  text: `<b>💳 Outstanding Loan Distribution${filterText}</b>`,
                   x: 0.5,
                   xanchor: 'center',
                   font: { size: 16, color: '#2c3e50', family: 'Arial, sans-serif' }
@@ -3537,6 +3652,142 @@ Werkzeug==3.0.1
       }
       
       /**
+       * Renders the combined pie and bar chart for loan usage purposes.
+       * @param {Array} data - Array of loan purpose objects from the API.
+       * @param {string|null} category - The active filter category for the title.
+       */
+      function renderLoanPurposeChart(data, category) {
+          const chartDiv = document.getElementById('loan-purpose-chart');
+          if (!chartDiv) {
+              console.warn('Loan purpose chart container not found.');
+              return;
+          }
+      
+          // Clear previous content and handle no-data state
+          if (!data || data.length === 0) {
+              chartDiv.innerHTML = `
+                  <div class="placeholder-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                      <i class="fas fa-info-circle fa-2x text-muted"></i>
+                      <h6 class="mt-2">No Loan Purpose Data</h6>
+                      <small class="text-muted">No borrowers found in this category.</small>
+                  </div>`;
+              return;
+          }
+      
+          try {
+              // Prepare data for charts (sorted by count descending)
+              const purposes = data.map(d => d.purpose);
+              const counts = data.map(d => d.count);
+              const percentages = data.map(d => d.percentage);
+              const colors = data.map(d => d.color);
+              const totalCount = counts.reduce((a, b) => a + b, 0);
+      
+              // Icon mapping for each purpose
+              const iconMapping = {
+                  'Konsumsi': '🛒',
+                  'Pendidikan': '🎓',
+                  'Gaya': '💄',
+                  'Usaha': '💼'
+              };
+      
+              // Add icons to purpose labels
+              const purposesWithIcons = purposes.map(purpose => {
+                  const icon = iconMapping[purpose] || '📊';
+                  return `${icon} ${purpose}`;
+              });
+      
+              // Dynamic title based on filter
+              const titleText = category && category !== 'All' 
+                  ? `Loan Usage (${totalCount} borrowers in ${category})` 
+                  : `Loan Usage Purpose (${totalCount} borrowers)`;
+      
+              // Create pie trace (FULL PIE - no hole)
+              const pieTrace = {
+                  values: percentages,
+                  labels: purposesWithIcons,
+                  type: 'pie',
+                  domain: { x: [0, 0.45], y: [0, 1] },
+                  marker: { 
+                      colors: colors, 
+                      line: { color: '#ffffff', width: 2 } 
+                  },
+                  textposition: 'auto',
+                  textinfo: 'label+percent',
+                  textfont: { size: 11, color: '#2c3e50', family: 'Arial, sans-serif' },
+                  hovertemplate: '<b>%{label}</b><br>%{value:.1f}%<br>(%{customdata} borrowers)<extra></extra>',
+                  customdata: counts,
+                  showlegend: false
+              };
+      
+              // Create bar trace with thinner bars
+              const barTrace = {
+                  y: purposesWithIcons,
+                  x: counts,
+                  type: 'bar',
+                  orientation: 'h',
+                  xaxis: 'x2',
+                  yaxis: 'y2',
+                  marker: { 
+                      color: colors,
+                      line: { color: '#ffffff', width: 1 }
+                  },
+                  text: counts.map(c => `${c}`),
+                  textposition: 'outside',
+                  textfont: { size: 11, color: '#2c3e50', family: 'Arial, sans-serif' },
+                  hovertemplate: '<b>%{y}</b><br>Count: %{x}<extra></extra>',
+                  width: 0.6 // Make bars thinner (default is 0.8)
+              };
+      
+              const layout = {
+                  title: {
+                      text: `<b>🎯 ${titleText}</b>`,
+                      x: 0.5,
+                      xanchor: 'center',
+                      font: { size: 16, color: '#2c3e50', family: 'Arial, sans-serif' }
+                  },
+                  height: 340,
+                  template: 'plotly_white',
+                  margin: { l: 80, r: 20, t: 50, b: 40 }, // Increased left margin for icons
+                  showlegend: false,
+                  
+                  // Bar chart axis (right side)
+                  xaxis2: {
+                      domain: [0.50, 1],
+                      anchor: 'y2',
+                      showgrid: true,
+                      gridcolor: '#f0f0f0',
+                      zeroline: false,
+                      showticklabels: true,
+                      range: [0, Math.max(...counts) * 1.15],
+                      tickfont: { size: 10 }
+                  },
+                  yaxis2: {
+                      domain: [0, 1],
+                      anchor: 'x2',
+                      autorange: 'reversed',
+                      showgrid: false,
+                      zeroline: false,
+                      tickfont: { size: 12, color: '#2c3e50' },
+                      ticklen: 0,
+                      ticksuffix: '  ' // Add space after labels
+                  }
+              };
+      
+              const config = { displayModeBar: false, responsive: true };
+              Plotly.newPlot(chartDiv, [pieTrace, barTrace], layout, config);
+              
+          } catch (error) {
+              console.error('Error rendering loan purpose chart:', error);
+              chartDiv.innerHTML = `
+                  <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                      <i class="fas fa-exclamation-triangle fa-2x"></i>
+                      <h6 class="mt-2">Failed to Load Chart</h6>
+                      <small>Error: ${error.message}</small>
+                  </div>`;
+          }
+      }
+      
+      /**
        * Shows a loading overlay on the loan panel.
        */
       function showLoadingState() {
@@ -3545,8 +3796,9 @@ Werkzeug==3.0.1
               card.style.opacity = '0.6';
               card.style.pointerEvents = 'none';
           });
-          const chartDiv = document.getElementById('loan-overview-chart');
-          if (chartDiv) chartDiv.style.opacity = '0.6';
+          document.querySelectorAll('.loan-chart-container > div').forEach(chartDiv => {
+              chartDiv.style.opacity = '0.6';
+          });
       }
       
       /**
@@ -3558,9 +3810,11 @@ Werkzeug==3.0.1
               card.style.opacity = '1';
               card.style.pointerEvents = 'auto';
           });
-          const chartDiv = document.getElementById('loan-overview-chart');
-          if (chartDiv) chartDiv.style.opacity = '1';
+           document.querySelectorAll('.loan-chart-container > div').forEach(chartDiv => {
+              chartDiv.style.opacity = '1';
+          });
       }
+      
       
       /**
        * Displays an error message in the filter status area.
@@ -3608,9 +3862,8 @@ Werkzeug==3.0.1
           console.log('Updating loan panel for category:', category || 'All');
           showLoadingState();
           
-          const apiUrl = category && category !== 'All' 
-              ? `/api/loan-filtered/${encodeURIComponent(category)}` 
-              : '/api/loan-filtered/All';
+          const categoryParam = category || 'All';
+          const apiUrl = `/api/loan-filtered/${encodeURIComponent(categoryParam)}`;
           
           fetch(apiUrl)
               .then(response => {
@@ -3629,7 +3882,7 @@ Werkzeug==3.0.1
                   
                   updateKPICard('loan-third-label', 'Total Outstanding');
                   updateKPICard('loan-third-value', formatCurrency(data.total_outstanding));
-                  updateKPICard('loan-third-subtext', category && category !== 'All' ? `In ${category} category` : 'Sum of all loans');
+                  updateKPICard('loan-third-subtext', category && category !== 'All' ? `In ${category}` : 'Sum of all loans');
                   
                   updateKPICard('loan-max-value', formatCurrency(data.max));
                   
@@ -3645,7 +3898,45 @@ Werkzeug==3.0.1
       }
       
       /**
-       * Initializes the loan chart with initial data.
+       * Fetches filtered loan purpose data and updates the chart.
+       * @param {string|null} category - The income category to filter by.
+       */
+      export function updateLoanPurposeChart(category) {
+          console.log('Updating loan purpose chart for category:', category || 'All');
+          const chartDiv = document.getElementById('loan-purpose-chart');
+          if (chartDiv) chartDiv.style.opacity = '0.6';
+      
+          const categoryParam = category || 'All';
+          const apiUrl = `/api/loan-purpose/${encodeURIComponent(categoryParam)}`;
+      
+          fetch(apiUrl)
+              .then(response => {
+                  if (!response.ok) {
+                      throw new Error(`HTTP error! Status: ${response.status}`);
+                  }
+                  return response.json();
+              })
+              .then(data => {
+                  console.log('Loan purpose data received:', data);
+                  renderLoanPurposeChart(data, category);
+                  if (chartDiv) chartDiv.style.opacity = '1';
+              })
+              .catch(error => {
+                  console.error('Error updating loan purpose chart:', error);
+                  if (chartDiv) {
+                      chartDiv.style.opacity = '1';
+                      chartDiv.innerHTML = `
+                          <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                              <i class="fas fa-exclamation-triangle fa-2x"></i>
+                              <h6 class="mt-2">Failed to Load Chart</h6>
+                              <small>${error.message}</small>
+                          </div>`;
+                  }
+              });
+      }
+      
+      /**
+       * Initializes the loan distribution chart with initial data.
        */
       export function initializeLoanChart() {
           const chartContainer = document.getElementById('loan-overview-chart');
@@ -3666,7 +3957,50 @@ Werkzeug==3.0.1
               console.error('Error initializing loan chart:', error);
           }
       }
-
+      
+      /**
+       * Initializes the loan purpose chart with initial, unfiltered data.
+       */
+      export function initializeLoanPurposeChart() {
+          const chartContainer = document.getElementById('loan-purpose-chart');
+          if (!chartContainer) {
+              console.error('Loan purpose chart container not found.');
+              return;
+          }
+      
+          console.log('Initializing loan purpose chart...');
+          
+          try {
+              fetch('/api/loan-purpose/All')
+                  .then(response => {
+                      if (!response.ok) {
+                          throw new Error(`HTTP error! Status: ${response.status}`);
+                      }
+                      return response.json();
+                  })
+                  .then(data => {
+                      console.log('Initial loan purpose data loaded:', data);
+                      renderLoanPurposeChart(data, 'All');
+                  })
+                  .catch(error => {
+                      console.error('Error loading initial loan purpose data:', error);
+                      chartContainer.innerHTML = `
+                          <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                              <i class="fas fa-exclamation-triangle fa-2x"></i>
+                              <h6 class="mt-2">Failed to Load Chart</h6>
+                              <small>${error.message}</small>
+                          </div>`;
+                  });
+          } catch (error) {
+              console.error('Fatal error initializing loan purpose chart:', error);
+              chartContainer.innerHTML = `
+                  <div class="placeholder-content text-danger" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 340px;">
+                      <i class="fas fa-exclamation-triangle fa-2x"></i>
+                      <h6 class="mt-2">Failed to Load Chart</h6>
+                      <small>${error.message}</small>
+                  </div>`;
+          }
+      }
       [File Ends] static\js\modules\loan_panel.js
 
   [File Begins] templates\about.html
@@ -4091,13 +4425,11 @@ Werkzeug==3.0.1
                         </div>
                     </div>
     
-                    <!-- Column 2: Loan Usage Purpose (Placeholder) -->
+                    <!-- Column 2: Loan Usage Purpose -->
                     <div class="col-lg-6 mb-4">
-                        <div class="loan-chart-container placeholder-chart">
-                            <div class="placeholder-content">
-                                <i class="fas fa-tasks fa-2x text-muted"></i>
-                                <h6 class="mt-2">Loan Usage Purpose</h6>
-                                <small class="text-muted">Chart coming soon</small>
+                        <div class="loan-chart-container">
+                            <div id="loan-purpose-chart" style="width: 100%; height: 340px;">
+                                <!-- This div will be populated by Plotly.js -->
                             </div>
                         </div>
                     </div>
@@ -4118,7 +4450,6 @@ Werkzeug==3.0.1
             </div>
         </div>
     </div>
-
     [File Ends] templates\components\loan_overview.html
 
     [File Begins] templates\components\summary_cards.html
@@ -5242,7 +5573,30 @@ Werkzeug==3.0.1
           
           loan_processor = LoanProcessor(self.df)
           return loan_processor.get_filtered_loan_data_by_income(income_category)
-
+  
+      def get_filtered_loan_purpose_data(self, income_category=None):
+          """
+          Get loan purpose distribution filtered by income category.
+  
+          Args:
+              income_category (str, optional): The income category to filter by.
+                                               If None or 'All', uses the full dataset.
+  
+          Returns:
+              list: A list of dictionaries with loan purpose distribution data.
+          """
+          if self.df is None:
+              self.load_data()
+  
+          # Filter the DataFrame based on the provided income category
+          if income_category and income_category != 'All':
+              filtered_df = self.df[self.df['avg_income_category'] == income_category].copy()
+          else:
+              filtered_df = self.df.copy()
+          
+          # Use the LoanProcessor with the (potentially) filtered DataFrame
+          loan_processor = LoanProcessor(filtered_df)
+          return loan_processor.get_loan_purpose_distribution()
   [File Ends] utils\data_loader.py
 
   [File Begins] utils\loan_processor.py
@@ -5265,6 +5619,15 @@ Werkzeug==3.0.1
           {'name': '10M-15M', 'min': 10_000_001, 'max': 15_000_000, 'color': '#e67e22'},
           {'name': '>15M', 'min': 15_000_001, 'max': float('inf'), 'color': '#e74c3c'}
       ]
+  
+      # Loan purpose visual mapping
+      LOAN_PURPOSE_MAP = {
+          'Konsumsi': {'color': '#3498db', 'icon': 'fas fa-shopping-cart'},
+          'Pendidikan': {'color': '#9b59b6', 'icon': 'fas fa-graduation-cap'},
+          'Usaha': {'color': '#2ecc71', 'icon': 'fas fa-store'},
+          'Gaya': {'color': '#e74c3c', 'icon': 'fas fa-gem'},
+          'Lainnya': {'color': '#95a5a6', 'icon': 'fas fa-ellipsis-h'}
+      }
       
       def __init__(self, df):
           """
@@ -5467,7 +5830,46 @@ Werkzeug==3.0.1
           stats['distribution'] = distribution
           
           return stats
-      
+  
+      def get_loan_purpose_distribution(self):
+          """
+          Calculates the distribution of loan usage purposes from the dataframe.
+  
+          Returns:
+              list: A list of dictionaries, each containing purpose, count, percentage, color, and icon.
+          """
+          # Filter out non-borrowers and NaN/null purposes
+          purpose_data = self.df[
+              (self.df['outstanding_loan'] > 0) &
+              (self.df['loan_usage_purpose'].notna()) &
+              (self.df['loan_usage_purpose'] != 'Tidak Ada')
+          ]['loan_usage_purpose']
+  
+          if purpose_data.empty:
+              return []
+  
+          # Calculate counts and total
+          purpose_counts = purpose_data.value_counts()
+          total_with_purpose = purpose_counts.sum()
+  
+          distribution = []
+          for purpose, count in purpose_counts.items():
+              percentage = (count / total_with_purpose) * 100 if total_with_purpose > 0 else 0
+              mapping = self.LOAN_PURPOSE_MAP.get(purpose, self.LOAN_PURPOSE_MAP['Lainnya'])
+              
+              distribution.append({
+                  'purpose': purpose,
+                  'count': int(count),
+                  'percentage': round(percentage, 1),
+                  'color': mapping['color'],
+                  'icon': mapping['icon']
+              })
+              
+          # Sort by count for better visualization
+          distribution.sort(key=lambda x: x['count'], reverse=True)
+          
+          return distribution
+  
       def _count_loans_in_category(self, category, loan_data=None):
           """
           Count loans in a specific category (NULL-safe)
@@ -5546,42 +5948,6 @@ Werkzeug==3.0.1
               return f"Rp {amount/1_000:.1f}K"
           else:
               return f"Rp {amount:.0f}"
-      
-      def _get_empty_filtered_stats(self):
-          """Return empty filtered statistics structure"""
-          return {
-              'filter_applied': None,
-              'total_respondents': 0,
-              'with_loan': 0,
-              'without_loan': 0,
-              'with_loan_pct': 0.0,
-              'without_loan_pct': 0.0,
-              'mean': 0.0,
-              'median': 0.0,
-              'mode': 0.0,
-              'max': 0.0,
-              'min': 0.0,
-              'total_outstanding': 0.0,
-              'distribution': []
-          }
-      
-      def format_currency(self, amount):
-          """
-          Format amount as Indonesian Rupiah
-          
-          Args:
-              amount (float): Amount to format
-          
-          Returns:
-              str: Formatted currency string
-          """
-          if amount >= 1_000_000:
-              return f"Rp {amount/1_000_000:.1f}M"
-          elif amount >= 1_000:
-              return f"Rp {amount/1_000:.1f}K"
-          else:
-              return f"Rp {amount:.0f}"
-
   [File Ends] utils\loan_processor.py
 
 

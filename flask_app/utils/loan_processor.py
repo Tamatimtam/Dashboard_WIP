@@ -18,13 +18,14 @@ class LoanProcessor:
         {'name': '>15M', 'min': 15_000_001, 'max': float('inf'), 'color': '#e74c3c'}
     ]
 
-    # Loan purpose visual mapping
+    # Loan purpose visual mapping - ADDED 'Undefined'
     LOAN_PURPOSE_MAP = {
-        'Konsumsi': {'color': '#3498db', 'icon': 'fas fa-shopping-cart'},
-        'Pendidikan': {'color': '#9b59b6', 'icon': 'fas fa-graduation-cap'},
-        'Usaha': {'color': '#2ecc71', 'icon': 'fas fa-store'},
-        'Gaya': {'color': '#e74c3c', 'icon': 'fas fa-gem'},
-        'Lainnya': {'color': '#95a5a6', 'icon': 'fas fa-ellipsis-h'}
+        'Konsumsi': {'color': '#3498db', 'icon': '🛒'},
+        'Pendidikan': {'color': '#9b59b6', 'icon': '🎓'},
+        'Usaha': {'color': '#2ecc71', 'icon': '💼'},
+        'Gaya': {'color': '#e74c3c', 'icon': '💄'},
+        'Lainnya': {'color': '#95a5a6', 'icon': '📊'},
+        'Undefined': {'color': '#bdc3c7', 'icon': '❓'}
     }
     
     def __init__(self, df):
@@ -62,8 +63,8 @@ class LoanProcessor:
         }
         
         # Calculate percentages
-        stats['with_loan_pct'] = round((stats['with_loan'] / stats['total_respondents']) * 100, 1)
-        stats['without_loan_pct'] = round((stats['without_loan'] / stats['total_respondents']) * 100, 1)
+        stats['with_loan_pct'] = round((stats['with_loan'] / stats['total_respondents']) * 100, 1) if stats['total_respondents'] > 0 else 0
+        stats['without_loan_pct'] = round((stats['without_loan'] / stats['total_respondents']) * 100, 1) if stats['total_respondents'] > 0 else 0
         
         return stats
     
@@ -175,7 +176,7 @@ class LoanProcessor:
             filtered_df = self.df
         
         if len(filtered_df) == 0:
-            return self._get_empty_filtered_stats()
+            return self._get_empty_filtered_stats(income_category)
         
         # CRITICAL FIX: Fill NaN with 0 before processing
         # Ensures NULL values are treated as "No Loan" for consistent counting
@@ -209,8 +210,8 @@ class LoanProcessor:
             mode_result = loan_data_with_loans.mode()
             stats['mode'] = float(mode_result.iloc[0]) if len(mode_result) > 0 else 0.0
         
-        stats['with_loan_pct'] = round((stats['with_loan'] / stats['total_respondents']) * 100, 1)
-        stats['without_loan_pct'] = round((stats['without_loan'] / stats['total_respondents']) * 100, 1)
+        stats['with_loan_pct'] = round((stats['with_loan'] / stats['total_respondents']) * 100, 1) if stats['total_respondents'] > 0 else 0
+        stats['without_loan_pct'] = round((stats['without_loan'] / stats['total_respondents']) * 100, 1) if stats['total_respondents'] > 0 else 0
         
         # Calculate distribution for filtered data
         distribution = []
@@ -231,28 +232,31 @@ class LoanProcessor:
 
     def get_loan_purpose_distribution(self):
         """
-        Calculates the distribution of loan usage purposes from the dataframe.
+        Calculates the distribution of loan usage purposes, including undefined ones.
+        This ensures the total number of borrowers matches the loan distribution chart.
 
         Returns:
-            list: A list of dictionaries, each containing purpose, count, percentage, color, and icon.
+            list: A list of dictionaries with loan purpose distribution data,
+                  sorted by count with 'Undefined' placed last.
         """
-        # Filter out non-borrowers and NaN/null purposes
-        purpose_data = self.df[
-            (self.df['outstanding_loan'] > 0) &
-            (self.df['loan_usage_purpose'].notna()) &
-            (self.df['loan_usage_purpose'] != 'Tidak Ada')
-        ]['loan_usage_purpose']
+        # 1. Get all records with an outstanding loan > 0
+        borrowers_df = self.df[self.df['outstanding_loan'] > 0].copy()
 
-        if purpose_data.empty:
+        if borrowers_df.empty:
             return []
 
-        # Calculate counts and total
-        purpose_counts = purpose_data.value_counts()
-        total_with_purpose = purpose_counts.sum()
+        # 2. Normalize 'loan_usage_purpose' to group all non-defined purposes
+        borrowers_df['loan_usage_purpose'] = borrowers_df['loan_usage_purpose'].fillna('Undefined')
+        borrowers_df['loan_usage_purpose'] = borrowers_df['loan_usage_purpose'].replace(['Tidak Ada', ''], 'Undefined')
 
+        # 3. Calculate value counts
+        purpose_counts = borrowers_df['loan_usage_purpose'].value_counts()
+        total_borrowers = len(borrowers_df)
+
+        # 4. Build the distribution list with all required attributes
         distribution = []
         for purpose, count in purpose_counts.items():
-            percentage = (count / total_with_purpose) * 100 if total_with_purpose > 0 else 0
+            percentage = (count / total_borrowers) * 100 if total_borrowers > 0 else 0
             mapping = self.LOAN_PURPOSE_MAP.get(purpose, self.LOAN_PURPOSE_MAP['Lainnya'])
             
             distribution.append({
@@ -263,8 +267,8 @@ class LoanProcessor:
                 'icon': mapping['icon']
             })
             
-        # Sort by count for better visualization
-        distribution.sort(key=lambda x: x['count'], reverse=True)
+        # 5. Sort by count descending, but ensure 'Undefined' is always last
+        distribution.sort(key=lambda x: (x['purpose'] == 'Undefined', -x['count']))
         
         return distribution
 
@@ -296,9 +300,9 @@ class LoanProcessor:
     def _get_empty_stats(self):
         """Return empty statistics structure"""
         return {
-            'total_respondents': 0,
+            'total_respondents': len(self.df),
             'with_loan': 0,
-            'without_loan': 0,
+            'without_loan': len(self.df),
             'mean': 0.0,
             'median': 0.0,
             'max': 0.0,
@@ -306,13 +310,13 @@ class LoanProcessor:
             'std': 0.0,
             'total_outstanding': 0.0,
             'with_loan_pct': 0.0,
-            'without_loan_pct': 0.0
+            'without_loan_pct': 100.0
         }
     
-    def _get_empty_filtered_stats(self):
+    def _get_empty_filtered_stats(self, category):
         """Return empty filtered statistics structure"""
         return {
-            'filter_applied': None,
+            'filter_applied': category,
             'total_respondents': 0,
             'with_loan': 0,
             'without_loan': 0,
